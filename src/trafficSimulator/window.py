@@ -59,6 +59,7 @@ class Window:
 
             # Handle all events
             for event in pygame.event.get():
+                print(event)
                 # Quit program if window is closed
                 if event.type == pygame.QUIT:
                     running = False
@@ -235,7 +236,7 @@ class Window:
             )
 
     def draw_roads(self):
-        for road in self.sim.roads:
+        for road in self.sim.roads.values():
             # Draw road background
             self.rotated_box(
                 road.start,
@@ -275,7 +276,7 @@ class Window:
             # TODO: Draw road arrow
 
     def draw_vehicle(self, vehicle, road):
-        l, h = vehicle.l,  2
+        l, h = vehicle.length,  2
         sin, cos = road.angle_sin, road.angle_cos
 
         x = road.start[0] + cos * vehicle.x 
@@ -284,7 +285,7 @@ class Window:
         self.rotated_box((x, y), (l, h), cos=cos, sin=sin, centered=True)
 
     def draw_vehicles(self):
-        for road in self.sim.roads:
+        for road in self.sim.roads.values():
             # Draw vehicles
             for vehicle in road.vehicles:
                 self.draw_vehicle(vehicle, road)
@@ -318,14 +319,14 @@ class Window:
         self.background(*self.bg_color)
 
         # Major and minor grid and axes
-        # self.draw_grid(10, (220,220,220))
-        # self.draw_grid(100, (200,200,200))
-        # self.draw_axes()
+        self.draw_grid(10, (220,220,220))
+        self.draw_grid(100, (200,200,200))
+        self.draw_axes()
 
         self.draw_roads()
-        #self.draw_vehicles() #TODO
+        self.draw_vehicles() #TODO
         #self.draw_signals() #TODO
 
         # Draw status info
-        #self.draw_status() #TODO
+        # self.draw_status() #TODO
         

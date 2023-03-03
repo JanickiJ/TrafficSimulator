@@ -1,2 +1,4 @@
 /venv/
 .idea/
+*.pyc
+src/trafficSimulator/test_1.py

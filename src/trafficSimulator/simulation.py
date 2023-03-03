@@ -1,18 +1,41 @@
 from .road import Road
+from .car import Car
+import time
 
 
 class Simulation:
-    def __init__(self):
-        self.roads = []
+    def __init__(self, speed = 100):
+        self.roads = {}
+        self.cars = []
+        self.speed = speed
 
-    def create_road(self, start, end):
+    def create_car(self, sim, conf, param) :
+        self.cars.append(Car(simulation=sim, conf=conf, parameters=param))
+
+    def set_vehicles(self, vehicles) :
+        for vehicle in vehicles:
+            self.create_car(vehicle[0], vehicle[1], vehicle[2])
+
+    def create_road(self, start, end, id):
         road = Road(start, end)
-        self.roads.append(road)
+        self.roads[id] = road
         return road
 
     def set_roads(self, road_list):
         for road in road_list:
-            self.create_road(*road)
+            print(road)
+            self.create_road(road[0], road[1], road[2])
 
-    def run(self, steps):
-        pass
+    def run(self, steps) :
+        start = time.time()
+        end = time.time()
+        dt = 0
+        for _ in range(steps) :
+            end = start
+            start = time.time()            
+            dt = max(0.001, start - end)
+            for i in range(1000000) :
+                i += 1
+            for road in self.roads.values() :
+                road.move_cars(dt = dt * self.speed)
+            
