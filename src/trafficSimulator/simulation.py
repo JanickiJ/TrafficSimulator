@@ -9,12 +9,12 @@ class Simulation:
         self.cars = []
         self.speed = speed
 
-    def create_car(self, sim, conf, param) :
-        self.cars.append(Car(simulation=sim, conf=conf, parameters=param))
+    def create_car(self, conf, param) :
+        self.cars.append(Car(simulation=self, conf=conf, parameters=param))
 
     def set_vehicles(self, vehicles) :
         for vehicle in vehicles:
-            self.create_car(vehicle[0], vehicle[1], vehicle[2])
+            self.create_car(vehicle[0], vehicle[1])
 
     def create_road(self, start, end, id):
         road = Road(start, end)
