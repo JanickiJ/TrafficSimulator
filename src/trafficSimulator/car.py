@@ -91,13 +91,13 @@ class Car :
 
         # jeśeli pojazd podąża za kimś
         if leader :
-            print(self.id, ". leader.x =", leader.x, "self.x =", self.x)
+            # print(self.id, ". leader.x =", leader.x, "self.x =", self.x)
             delta_x = leader.x - self.x - leader.length
             delta_v = self.v - leader.v
 
             follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-        else :
-            print(self.id, ". leader.x =", "None", "self.x =", self.x)
+        # else :
+        #     print(self.id, ". leader.x =", "None", "self.x =", self.x)
 
         self.a = self.a_max * (1 - (self.v / self.v_max)**4 - follow_corection**2)
 

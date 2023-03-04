@@ -59,7 +59,7 @@ class Window:
 
             # Handle all events
             for event in pygame.event.get():
-                print(event)
+                # print(event)
                 # Quit program if window is closed
                 if event.type == pygame.QUIT:
                     running = False
