@@ -1,18 +1,11 @@
-#Copyright BilHim github
-
 import pygame
 from pygame import gfxdraw
 import numpy as np
 
 class Window:
     def __init__(self, sim, config={}):
-        # Simulation to draw
         self.sim = sim
-
-        # Set default configurations
         self.set_default_config()
-
-        # Update configurations
         for attr, val in config.items():
             setattr(self, attr, val)
         
@@ -20,7 +13,7 @@ class Window:
         """Set default configuration"""
         self.width = 1400
         self.height = 900
-        self.bg_color = (250, 250, 250)
+        self.bg_color = (229, 255, 204)
 
         self.fps = 60
         self.zoom = 5
