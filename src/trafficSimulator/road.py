@@ -2,13 +2,14 @@ from scipy.spatial import distance
 
 
 class Road:
-    def __init__(self, start, end):
+    def __init__(self, start, end, max_speed = 13.83):
         self.start = start
         self.end = end
         self.length = distance.euclidean(self.start, self.end)
         self.angle_sin = (self.end[1] - self.start[1]) / self.length
         self.angle_cos = (self.end[0] - self.start[0]) / self.length
         self.vehicles = set()
+        self.max_speed = max_speed
 
     def add_vehicle(self, vehicle) :
         self.vehicles.add(vehicle)

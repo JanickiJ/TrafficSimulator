@@ -98,8 +98,10 @@ class Car :
             delta_x = leader.x - self.x - leader.length
             delta_v = self.v - leader.v
             follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-        # else :
-        #     print(self.id, ". leader.x =", "None", "self.x =", self.x)
+        elif self.v > self.v_max : 
+            delta_x = 2 * self.length
+            delta_v = self.v - self.v_max
+            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
 
         self.a = self.a_max * (1 - (self.v / self.v_max)**4 - follow_corection**2)
 
