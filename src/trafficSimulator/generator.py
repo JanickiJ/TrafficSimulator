@@ -1,5 +1,7 @@
 import numpy as np
 
+max_car_length = 12.5
+
 def id(a) :
     return a
 
@@ -11,6 +13,7 @@ class Generator :
         self.number = 0
         self.typesWithLikelihood = []
         self.pathsWithLikelihood = []
+        self.queue = []
         self.summary = {}
         self.pathSummary= {}
         self.simulation = simulation
@@ -51,7 +54,6 @@ class Generator :
         return a
 
     def generateCars(self, n) :
-        carTypes = []
         for _ in range(n) :
             self.number += 1
             a = self.chooseType()
@@ -59,14 +61,23 @@ class Generator :
             carType = self.typesWithLikelihood[a][1]
             carType["id"] = self.number
             carType["path"] = self.pathsWithLikelihood[b][1]
-            carType["position"] = np.random.uniform(0, self.simulation.roads[carType["path"][0]].length)
-            carTypes.append(({}, carType))
-            
-            print(self.pathsWithLikelihood[b][1], carType["position"])
+            if self.simulation.roads[carType["path"][0]].length < 2 * max_car_length : continue
+            carType["position"] = 12.0 + (self.simulation.roads[carType["path"][0]].length - 2 * max_car_length) * np.random.uniform(0.0, 1.0)
+            if self.simulation.can_add_car(carType["path"][0], carType["position"], max_car_length) :
+                self.simulation.set_vehicles([({}, carType)])
+            else :
+                self.queue.append(carType)
+            # print(self.pathsWithLikelihood[b][1], carType["position"])
             # print(self.summary)
-        self.simulation.set_vehicles(carTypes)
 
     def generate(self, speed, simulation_time, dt) :
+        new_queue = []
+        for car in self.queue :
+            if self.simulation.can_add_car(car["path"][0], car["position"], max_car_length) :
+                self.simulation.set_vehicles([({}, car)])
+            else :
+                new_queue.append(car)
+        self.queue = new_queue
         if np.random.uniform(0, 1.0) <= speed * self.intensity_function(simulation_time) * dt : 
             self.generateCars(1)
 

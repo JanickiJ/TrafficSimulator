@@ -1,4 +1,5 @@
 import numpy as np
+from .generator import max_car_length
 
 class Car :
     def __init__(self, parameters = None, conf = {}, simulation = None) :
@@ -49,12 +50,13 @@ class Car :
         if self.current_road_index < len(self.path) :
             current_road = self.path[self.current_road_index]
             self.simulation.roads[current_road].add_vehicle(self)
+            self.slowDown(self.simulation.roads[current_road].max_speed)
         else :
             self.finish()
 
     def set_parameters(self, parameters) : 
         self.id = parameters["id"]        
-        self.length = parameters["length"]
+        self.length = min(max_car_length, parameters["length"])
         self.s0 = self.length + parameters["delta_s0"]
         self.break_reaction_time = parameters["break_reaction_time"]    # czas potrzebny na przeniesienie nacisku na pedał hamulca na koła
 
@@ -70,10 +72,11 @@ class Car :
         self.current_road_index = parameters["road_index"]
 
         self.x = parameters["position"]
-        self.v = self.v_max     # pewnie będzie można zmienić na self.v = 0
+        self.v = 0
         self.a = 0
         self.stopped = False
         self.finished = False
+        print(self.x)
 
     def change_road(self, current_road) :
         self.x -= self.simulation.roads[current_road].length
@@ -84,17 +87,16 @@ class Car :
     def move(self, dt = 1.0, leader = None) :
         if self.finished :
             return
-        self.x += self.v * dt + self.a * dt* dt / 2
+        dx = max(0.0, self.v * dt + self.a * dt * dt / 2)
+        self.x += dx
         self.v = max(0.0, self.v + self.a * dt)
         
         follow_corection = 0
 
         # jeśeli pojazd podąża za kimś
         if leader :
-            # print(self.id, ". leader.x =", leader.x, "self.x =", self.x)
             delta_x = leader.x - self.x - leader.length
             delta_v = self.v - leader.v
-
             follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
         # else :
         #     print(self.id, ". leader.x =", "None", "self.x =", self.x)
