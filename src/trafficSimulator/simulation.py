@@ -1,7 +1,6 @@
 from .road import Road
 from .car import Car
 import time
-import numpy as np
 
 
 class Simulation:
