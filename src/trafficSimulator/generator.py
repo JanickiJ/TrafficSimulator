@@ -1,8 +1,11 @@
 import numpy as np
 
+def id(a) :
+    return a
+
 class Generator :
 
-    def __init__(self, carTypes, paths, simulation) :
+    def __init__(self, carTypes, paths, simulation, intensity_function = id) :
         self.sum = 0
         self.pathSum = 0
         self.number = 0
@@ -11,6 +14,7 @@ class Generator :
         self.summary = {}
         self.pathSummary= {}
         self.simulation = simulation
+        self.intensity_function = intensity_function
         for type in carTypes :
             self.typesWithLikelihood.append((self.sum, type[1]))
             self.sum += type[0]
@@ -61,5 +65,9 @@ class Generator :
             print(self.pathsWithLikelihood[b][1], carType["position"])
             # print(self.summary)
         self.simulation.set_vehicles(carTypes)
+
+    def generate(self, speed, simulation_time, dt) :
+        if np.random.uniform(0, 1.0) <= speed * self.intensity_function(simulation_time) * dt : 
+            self.generateCars(1)
 
         

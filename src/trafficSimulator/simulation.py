@@ -29,9 +29,8 @@ class Simulation:
             print(road)
             self.create_road(road[0], road[1], road[2])
 
-    def set_generator(self, generator, intensityFuntion) :
+    def set_generator(self, generator) :
         self.generator = generator
-        self.intensity_function = intensityFuntion
 
     def run(self, steps) :
         start = time.time()
@@ -41,12 +40,12 @@ class Simulation:
             end = start
             start = time.time()            
             dt = max(0.001, start - end)
-            self.simulation_time += dt
+            self.simulation_time += dt * self.speed
             for i in range(1000000) :
                 i += 1
             for road in self.roads.values() :
                 road.move_cars(dt = dt * self.speed)
-            if self.generator != None and np.random.uniform(0, 1.0) <= self.speed * self.intensity_function(self.simulation_time) * dt : 
-                self.generator.generateCars(1)
+            if self.generator != None :
+                self.generator.generate(self.speed, self.simulation_time, dt)
             
             
