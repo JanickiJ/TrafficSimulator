@@ -5,7 +5,7 @@ class TrafficSignal:
         self.roads = roads
         self.state = [(False, True), (True, False)]
         self.state_index = 0
-        self.stop_distance = 5.0
+        self.stop_distance = 10.0
         self.T = 30.0
         self.t = 0
         self.simulation = sim
@@ -17,7 +17,7 @@ class TrafficSignal:
             for r in self.roads[i] :
                 self.simulation.roads[r].set_traffic_signal(self, i)
                 max_speed = max(max_speed, self.simulation.roads[r].max_speed)
-        self.break_distance = 5.0 + 1.8 * max_speed
+        self.break_distance = self.stop_distance + 1.8 * max_speed
 
     def update(self, dt) :
         self.t += dt
