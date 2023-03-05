@@ -21,15 +21,17 @@ class Simulation:
         for vehicle in vehicles:
             self.create_car(vehicle[0], vehicle[1])
 
-    def create_road(self, start, end, id, speed_limit = 13.83):
-        road = Road(start, end, speed_limit)
+    def create_road(self, start, end, id, speed_limit = 13.83, right_of_way = True):
+        road = Road(id, start, end, self, speed_limit, right_of_way)
         self.roads[id] = road
         return road
 
     def set_roads(self, road_list):
         for road in road_list:
             print(road)
-            if len(road) > 3 : #if road has a special speed limit
+            if len(road) > 4 :
+                self.create_road(road[0], road[1], road[2], road[3], road[4])
+            elif len(road) > 3 : #if road has a special speed limit
                 self.create_road(road[0], road[1], road[2], road[3])
             else :
                 self.create_road(road[0], road[1], road[2])

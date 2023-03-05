@@ -83,6 +83,11 @@ class Car :
         self.current_road_index += 1
         self.add_to_road()
 
+    def get_position(self) :
+        r = self.path[self.current_road_index]
+        road = self.simulation.roads[r]
+        return ((road.end[0] * self.x + road.start[0] * (road.length - self.x)) / road.length, (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
+
     def move(self, dt = 1.0, leader = None) :
         if self.finished :
             return
