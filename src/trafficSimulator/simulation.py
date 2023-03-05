@@ -5,9 +5,10 @@ import numpy as np
 
 
 class Simulation:
-    def __init__(self, speed = 100):
+    def __init__(self, speed = 25):
         self.roads = {}
         self.cars = []
+        self.traffic_lights = []
         self.speed = speed
         self.simulation_time = 0.0
         self.generator = None
@@ -36,6 +37,9 @@ class Simulation:
     def set_generator(self, generator) :
         self.generator = generator
 
+    def set_lights(self, traffic_lights) :
+        self.traffic_lights = traffic_lights
+
     def run(self, steps) :
         start = time.time()
         end = time.time()
@@ -45,8 +49,8 @@ class Simulation:
             start = time.time()            
             dt = max(0.001, start - end)
             self.simulation_time += dt * self.speed
-            for i in range(1000000) :
-                i += 1
+            for light in self.traffic_lights :
+                light.update(dt * self.speed)
             for road in self.roads.values() :
                 road.move_cars(dt = dt * self.speed)
             if self.generator != None :

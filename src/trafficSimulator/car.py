@@ -76,7 +76,6 @@ class Car :
         self.a = 0
         self.stopped = False
         self.finished = False
-        print(self.x)
 
     def change_road(self, current_road) :
         self.x -= self.simulation.roads[current_road].length
@@ -102,11 +101,16 @@ class Car :
             delta_x = 2 * self.length
             delta_v = self.v - self.v_max
             follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-
-        self.a = self.a_max * (1 - (self.v / self.v_max)**4 - follow_corection**2)
+        if self.v_max == 0.0 :
+            self.a = -self.a_max
+        else :
+            self.a = self.a_max * (1 - (self.v / self.v_max)**4 - follow_corection**2)
 
         if self.stopped : 
-            self.a = -self.b_max * self.v / self.v_max  
+            if self.v_max == 0.0 :
+                self.a = -self.a_max
+            else :
+                self.a = -self.b_max * self.v / self.v_max  
 
         current_road = self.path[self.current_road_index]
         if self.x > self.simulation.roads[current_road].length :
@@ -122,7 +126,8 @@ class Car :
         self.stopped = False
 
     def slowDown(self, v) :
-        self.v_max = v
+        self.v_max = max(0.0, v)
 
-    def speedUp(self) :
-        self.v_max = self._v_max  
+    def speedUp(self, v) :
+        self.start()
+        self.v_max = min(v, self._v_max)  
