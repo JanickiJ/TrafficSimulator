@@ -237,6 +237,31 @@ def test7() :
     sim.set_generator(gen)
     run_simulation(sim)
 
+def test8() :
+    # traffic light and right of way test
+    sim = Simulation()
+    set_roads_with_right_of_way(sim)
+    gen = Generator(carTypes=[
+                                (2, {"length" : 8.0, "break_reaction_time" : 0.33, "maximum_speed" : 25.0, "a_max" : 2.5, "b_max" : 5.0}), 
+                                (1, {"length" : 4.6, "break_reaction_time" : 0.25, "maximum_speed" : 35.0, "a_max" : 4.5, "b_max" : 7.2}), 
+                                (4, {"maximum_speed" : 25.0}),
+                                (2, {"maximum_speed" : 20.0}),
+                                (1, {"avarage_reaction_time" : 0.75, "maximum_speed" : 50.0})
+                             ], paths=[
+                                (1, [5, 4, 3]),
+                                (1, [8, 7]),
+                                (1, [1, 11, 2, 12]),
+                                (1, [4, 3]),
+                                (1, [6, 10, 14]),
+                                (1, [3]),
+                                (1, [7]),
+                                (1, [13, 14]),
+                                (1, [2, 12]),
+                                (1, [2, 10, 14]),
+                             ], simulation=sim, intensity_function=intensityFunction2)
+    sim.set_generator(gen)
+    run_simulation(sim)
+
 def runTests() :
     # test1()
     # test2()
