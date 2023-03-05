@@ -1,6 +1,6 @@
 from scipy.spatial import distance
 
-save_distance = 25.0
+save_distance = 20.0
 break_distance = 50.0
 stop_distance = 5.0
 
@@ -29,35 +29,39 @@ class Road:
         min_distance = 100.0
         for car in self.simulation.cars :
             if car.current_road_index < len(car.path) and car.path[car.current_road_index] != self.id :
-                min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end))
+                min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8)
         return min_distance
+    
+    def speed_up_vehicles(self, speed) :
+        for vehicle in self.vehicle_array :
+            vehicle.speedUp(speed)
+
+    def stop_cars(self, break_distance, stop_distance) :
+        if len(self.vehicle_array) > 0 :
+            if self.vehicle_array[0].x >= self.length - break_distance :
+                self.vehicle_array[0].slowDown(self.max_speed * (self.length - stop_distance - self.vehicle_array[0].x) / (break_distance - stop_distance))
+            if self.vehicle_array[0].x >= self.length - stop_distance :
+                self.vehicle_array[0].stop()
 
     def move_cars(self, dt = 0.01) :
-        vehicle_array = list(self.vehicles)
-        vehicle_array = sorted(vehicle_array, key = lambda car : car.x, reverse = True)
+        self.vehicle_array = sorted(list(self.vehicles), key = lambda car : car.x, reverse = True)
+
         if not self.has_right_of_way and not self.has_signal :
+            # brak pierszeństwa przejazdu i sygnalizacji świetlnej
             if self.closest_distance() < save_distance :
-                if len(vehicle_array) > 0 :
-                    if vehicle_array[0].x >= self.length - break_distance :
-                        vehicle_array[0].slowDown(self.max_speed * (self.length - stop_distance - vehicle_array[0].x) / (break_distance - stop_distance))
-                    if vehicle_array[0].x >= self.length - stop_distance :
-                        vehicle_array[0].stop()
+                self.stop_cars(break_distance, stop_distance)
             elif self.closest_distance() < 3.0 * save_distance:
-                for vehicle in vehicle_array :
-                    vehicle.speedUp(self.max_speed)
+                self.speed_up_vehicles(self.max_speed)
         else :
             if self.traffic_signal_state() :
-                for vehicle in vehicle_array :
-                    vehicle.speedUp(self.max_speed)
-            elif len(vehicle_array) > 0 and self.has_signal :
-                if vehicle_array[0].x >= self.length - self.signal.break_distance :
-                    vehicle_array[0].slowDown(self.max_speed * (self.length - self.signal.stop_distance - vehicle_array[0].x) / (self.signal.break_distance - self.signal.stop_distance))
-                if vehicle_array[0].x >= self.length - self.signal.stop_distance :
-                    vehicle_array[0].stop()
-        for i in range(len(vehicle_array)) :
+                self.speed_up_vehicles(self.max_speed)
+            elif len(self.vehicle_array) > 0 and self.has_signal :
+                self.stop_cars(self.signal.break_distance, self.signal.stop_distance)
+
+        for i in range(len(self.vehicle_array)) :
             leader = None
-            if i > 0 : leader = vehicle_array[i - 1]
-            vehicle_array[i].move(dt = dt, leader = leader)
+            if i > 0 : leader = self.vehicle_array[i - 1]
+            self.vehicle_array[i].move(dt = dt, leader = leader)
 
     def set_traffic_signal(self, signal, index):
         self.signal = signal

@@ -281,8 +281,8 @@ class Window:
         l, h = vehicle.length,  2
         sin, cos = road.angle_sin, road.angle_cos
 
-        x = road.start[0] + cos * vehicle.x 
-        y = road.start[1] + sin * vehicle.x 
+        x = road.start[0] + cos * (vehicle.x - 1.0)
+        y = road.start[1] + sin * (vehicle.x - 1.0)
 
         self.rotated_box((x, y), (l, h), cos=cos, sin=sin, centered=True)
 

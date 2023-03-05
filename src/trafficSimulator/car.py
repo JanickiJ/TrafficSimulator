@@ -88,6 +88,14 @@ class Car :
         road = self.simulation.roads[r]
         return ((road.end[0] * self.x + road.start[0] * (road.length - self.x)) / road.length, (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
 
+    def detect_potential_leader(self) :
+        if self.current_road_index + 1 < len(self.path) :
+            r = self.path[self.current_road_index + 1]
+            road = self.simulation.roads[r]
+            if len(road.vehicle_array) > 0 :
+                return road.vehicle_array[-1]
+        return None
+    
     def move(self, dt = 1.0, leader = None) :
         if self.finished :
             return
@@ -97,12 +105,17 @@ class Car :
         
         follow_corection = 0
 
+        potential_leader = self.detect_potential_leader()
         # jeśeli pojazd podąża za kimś
         if leader :
             delta_x = leader.x - self.x - leader.length
             delta_v = self.v - leader.v
             follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-        elif self.v > self.v_max : 
+        elif potential_leader :
+            delta_x = potential_leader.x + self.simulation.roads[self.path[self.current_road_index]].length - self.x
+            delta_v = self.v - potential_leader.v
+            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
+        if self.v > self.v_max : 
             delta_x = 2 * self.length
             delta_v = self.v - self.v_max
             follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
