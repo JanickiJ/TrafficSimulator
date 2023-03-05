@@ -248,8 +248,6 @@ class Window:
             #     color=(0, 0, 0),
             #     centered=False
             # )
-
-            # Draw road arrow
             if road.length > 5: 
                 for i in np.arange(-0.5*road.length, 0.5*road.length, 10):
                     pos = (
@@ -264,9 +262,20 @@ class Window:
                         sin=road.angle_sin
                     )   
             
-
-
-            # TODO: Draw road arrow
+            if not road.has_right_of_way :
+                a = 4.0 / road.length
+                position = (
+                    (1.0 - a) * road.end[0] + a * road.start[0],        
+                    (1.0 - a) * road.end[1] + a * road.start[1]
+                )
+                self.rotated_box(
+                    position,
+                    (1, 3.7),
+                    cos=road.angle_cos,
+                    sin=road.angle_sin,
+                    color=(224, 224, 224),
+                    centered=True
+                )
 
     def draw_vehicle(self, vehicle, road):
         l, h = vehicle.length,  2
@@ -288,10 +297,10 @@ class Window:
             for i in range(len(signal.roads)) :
                 for r in signal.roads[i] :
                     road = self.sim.roads[r]
-                    a = signal.stop_distance / road.length
+                    a = signal.stop_distance / (2.0 * road.length)
                     position = (
-                        (1-a)*road.end[0] + a*road.start[0],        
-                        (1-a)*road.end[1] + a*road.start[1]
+                        (1.0 - a) * road.end[0] + a * road.start[0],        
+                        (1.0 - a) * road.end[1] + a * road.start[1]
                     )
                     if signal.get_current_state(i) : 
                         color = (0, 255, 0) 
