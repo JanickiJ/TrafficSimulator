@@ -1,8 +1,11 @@
 import numpy as np
-from .generator import max_car_length
 
-class Car :
-    def __init__(self, parameters = None, conf = {}, simulation = None) :
+from src.trafficSimulator.generator import max_car_length
+from src.trafficSimulator.curve import Curve
+
+
+class Car:
+    def __init__(self, parameters=None, conf={}, simulation=None):
         self.simulation = simulation
 
         self.set_vehicle_parameters(parameters)
@@ -10,63 +13,71 @@ class Car :
         for attr, val in conf.items():
             setattr(self, attr, val)
 
-    def set_vehicle_parameters(self, parameters) :
+    def set_vehicle_parameters(self, parameters):
         default = {
-                    "id" : 0,
-                    "length" : 5.0, 
-                    "delta_s0" : 1.0, 
-                    "break_reaction_time" : 0.3, 
-                    "avarage_reaction_time" : 0.85, 
-                    "stand_dev_reaction_time" : 0.15, 
-                    "maximum_speed" : 16.6, 
-                    "a_max" : 3.3, 
-                    "b_max" : 6.25, 
-                    "road_index" : 0, 
-                    "path" : [],
-                    "position" : 0
-                  }
-        
-        if parameters == None :
+            "id": 0,
+            "length": 5.0,
+            "delta_s0": 1.0,
+            "break_reaction_time": 0.3,
+            "avarage_reaction_time": 0.85,
+            "stand_dev_reaction_time": 0.15,
+            "maximum_speed": 16.6,
+            "a_max": 3.3,
+            "b_max": 6.25,
+            "road_index": 0,
+            "path": [],
+            "position": 0
+        }
+
+        if parameters == None:
             parameters = default
-        
-        if "id" not in parameters.keys() : parameters["id"] = default["id"]
-        if "length" not in parameters.keys() : parameters["length"] = default["length"]
-        if "delta_s0" not in parameters.keys() : parameters["delta_s0"] = default["delta_s0"]
-        if "break_reaction_time" not in parameters.keys() : parameters["break_reaction_time"] = default["break_reaction_time"]
-        if "avarage_reaction_time" not in parameters.keys() : parameters["avarage_reaction_time"] = default["avarage_reaction_time"]
-        if "stand_dev_reaction_time" not in parameters.keys() : parameters["stand_dev_reaction_time"] = default["stand_dev_reaction_time"]
-        if "maximum_speed" not in parameters.keys() : parameters["maximum_speed"] = default["maximum_speed"]
-        if "a_max" not in parameters.keys() : parameters["a_max"] = default["a_max"]
-        if "b_max" not in parameters.keys() : parameters["b_max"] = default["b_max"]
-        if "road_index" not in parameters.keys() : parameters["road_index"] = default["road_index"]
-        if "path" not in parameters.keys() : parameters["path"] = default["path"] 
-        if "position" not in parameters.keys() : parameters["position"] = default["position"] 
+
+        if "id" not in parameters.keys(): parameters["id"] = default["id"]
+        if "length" not in parameters.keys(): parameters["length"] = default["length"]
+        if "delta_s0" not in parameters.keys(): parameters["delta_s0"] = default["delta_s0"]
+        if "break_reaction_time" not in parameters.keys(): parameters["break_reaction_time"] = default[
+            "break_reaction_time"]
+        if "avarage_reaction_time" not in parameters.keys(): parameters["avarage_reaction_time"] = default[
+            "avarage_reaction_time"]
+        if "stand_dev_reaction_time" not in parameters.keys(): parameters["stand_dev_reaction_time"] = default[
+            "stand_dev_reaction_time"]
+        if "maximum_speed" not in parameters.keys(): parameters["maximum_speed"] = default["maximum_speed"]
+        if "a_max" not in parameters.keys(): parameters["a_max"] = default["a_max"]
+        if "b_max" not in parameters.keys(): parameters["b_max"] = default["b_max"]
+        if "road_index" not in parameters.keys(): parameters["road_index"] = default["road_index"]
+        if "path" not in parameters.keys(): parameters["path"] = default["path"]
+        if "position" not in parameters.keys(): parameters["position"] = default["position"]
 
         self.set_parameters(parameters)
 
         self.add_to_road()
 
-    def add_to_road(self) :
-        if self.current_road_index < len(self.path) :
+    def add_to_road(self):
+        if self.current_road_index < len(self.path):
             current_road = self.path[self.current_road_index]
             self.simulation.roads[current_road].add_vehicle(self)
             self.slowDown(self.simulation.roads[current_road].max_speed)
-        else :
+        else:
             self.finish()
 
-    def set_parameters(self, parameters) : 
-        self.id = parameters["id"]        
+    def set_parameters(self, parameters):
+        self.id = parameters["id"]
         self.length = min(max_car_length, parameters["length"])
         self.s0 = self.length + parameters["delta_s0"]
-        self.break_reaction_time = parameters["break_reaction_time"]    # czas potrzebny na przeniesienie nacisku na pedał hamulca na koła
+        self.break_reaction_time = parameters[
+            "break_reaction_time"]  # czas potrzebny na przeniesienie nacisku na pedał hamulca na koła
 
         # czas reakcji waha się w zakresie od 0.7s do 1.0s
-        self.T = self.break_reaction_time + max(0.0, np.random.normal(parameters["avarage_reaction_time"], parameters["stand_dev_reaction_time"])) 
-        
-        self.v_max = parameters["maximum_speed"]    # maksymalna prędkość (przyjęto ekwiwalent prędkości 60km/h wyrażoną w m/s)
+        self.T = self.break_reaction_time + max(0.0, np.random.normal(parameters["avarage_reaction_time"],
+                                                                      parameters["stand_dev_reaction_time"]))
+
+        self.v_max = parameters[
+            "maximum_speed"]  # maksymalna prędkość (przyjęto ekwiwalent prędkości 60km/h wyrażoną w m/s)
         self._v_max = self.v_max
-        self.a_max = parameters["a_max"]            # maksymalne przyspieszenie https://www.autocentrum.pl/nasze-pomiary/ranking-przyspieszenia/
-        self.b_max = parameters["b_max"]            # maksymalne opóźnienie przy hamowaniu https://motofakty.pl/droga-hamowania-to-nie-wszystko-ile-miejsca-potrzeba-by-zatrzymac-auto/ar/c4-16232753
+        self.a_max = parameters[
+            "a_max"]  # maksymalne przyspieszenie https://www.autocentrum.pl/nasze-pomiary/ranking-przyspieszenia/
+        self.b_max = parameters[
+            "b_max"]  # maksymalne opóźnienie przy hamowaniu https://motofakty.pl/droga-hamowania-to-nie-wszystko-ile-miejsca-potrzeba-by-zatrzymac-auto/ar/c4-16232753
 
         self.path = parameters["path"]
         self.current_road_index = parameters["road_index"]
@@ -77,75 +88,83 @@ class Car :
         self.stopped = False
         self.finished = False
 
-    def change_road(self, current_road) :
+    def change_road(self, current_road):
         self.x -= self.simulation.roads[current_road].length
         self.simulation.roads[current_road].remove_vehicle(self)
         self.current_road_index += 1
         self.add_to_road()
 
-    def get_position(self) :
+    def get_position(self):
         r = self.path[self.current_road_index]
         road = self.simulation.roads[r]
-        return ((road.end[0] * self.x + road.start[0] * (road.length - self.x)) / road.length, (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
+        return ((road.end[0] * self.x + road.start[0] * (road.length - self.x)) / road.length,
+                (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
 
-    def detect_potential_leader(self) :
-        if self.current_road_index + 1 < len(self.path) :
-            r = self.path[self.current_road_index + 1]
-            road = self.simulation.roads[r]
-            if len(road.vehicle_array) > 0 :
-                return road.vehicle_array[-1]
+    def detect_potential_leader(self):
+        if self.current_road_index + 1 < len(self.path):
+            next_road_idx = self.path[self.current_road_index + 1]
+            current_road_idx = self.path[self.current_road_index]
+            next_road = self.simulation.roads[next_road_idx]
+            current_road = self.simulation.roads[current_road_idx]
+            if isinstance(current_road, Curve) and isinstance(current_road, Curve):
+                return None
+            if len(next_road.vehicle_array) > 0:
+                return next_road.vehicle_array[-1]
         return None
-    
-    def move(self, dt = 1.0, leader = None) :
-        if self.finished :
+
+    def move(self, dt=1.0, leader=None):
+        if self.finished:
             return
         dx = max(0.0, self.v * dt + self.a * dt * dt / 2)
         self.x += dx
         self.v = max(0.0, self.v + self.a * dt)
-        
+
         follow_corection = 0
 
         potential_leader = self.detect_potential_leader()
         # jeśeli pojazd podąża za kimś
-        if leader :
+        if leader:
             delta_x = leader.x - self.x - leader.length
             delta_v = self.v - leader.v
-            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-        elif potential_leader :
+            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
+                    2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
+        elif potential_leader:
             delta_x = potential_leader.x + self.simulation.roads[self.path[self.current_road_index]].length - self.x
             delta_v = self.v - potential_leader.v
-            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-        if self.v > self.v_max : 
+            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
+                    2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
+        if self.v > self.v_max:
             delta_x = 2 * self.length
             delta_v = self.v - self.v_max
-            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v/(2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
-        if self.v_max == 0.0 :
+            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
+                    2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
+        if self.v_max == 0.0:
             self.a = -self.a_max
-        else :
-            self.a = self.a_max * (1 - (self.v / self.v_max)**4 - follow_corection**2)
+        else:
+            self.a = self.a_max * (1 - (self.v / self.v_max) ** 4 - follow_corection ** 2)
 
-        if self.stopped : 
-            if self.v_max == 0.0 :
+        if self.stopped:
+            if self.v_max == 0.0:
                 self.a = -self.a_max
-            else :
-                self.a = -self.b_max * self.v / self.v_max  
+            else:
+                self.a = -self.b_max * self.v / self.v_max
 
         current_road = self.path[self.current_road_index]
-        if self.x > self.simulation.roads[current_road].length :
+        if self.x > self.simulation.roads[current_road].length:
             self.change_road(current_road)
 
-    def finish(self) :
+    def finish(self):
         self.finished = True
 
-    def stop(self) :
+    def stop(self):
         self.stopped = True
 
-    def start(self) :
+    def start(self):
         self.stopped = False
 
-    def slowDown(self, v) :
+    def slowDown(self, v):
         self.v_max = max(0.0, v)
 
-    def speedUp(self, v) :
+    def speedUp(self, v):
         self.start()
-        self.v_max = min(v, self._v_max)  
+        self.v_max = min(v, self._v_max)

@@ -1,11 +1,13 @@
 from scipy.spatial import distance
 
+
 save_distance = 20.0
 break_distance = 50.0
 stop_distance = 5.0
 
+
 class Road:
-    def __init__(self, id, start, end, sim, max_speed = 13.83, right_of_way = True) :
+    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True):
         self.id = id
         self.start = start
         self.end = end
@@ -17,51 +19,54 @@ class Road:
         self.has_right_of_way = right_of_way
         self.has_signal = False
         self.simulation = sim
+        self.vehicle_array = []
 
-    def add_vehicle(self, vehicle) :
+    def add_vehicle(self, vehicle):
         self.vehicles.add(vehicle)
 
-    def remove_vehicle(self, vehicle) :
-        if vehicle in self.vehicles :
+    def remove_vehicle(self, vehicle):
+        if vehicle in self.vehicles:
             self.vehicles.remove(vehicle)
 
-    def closest_distance(self) :
+    def closest_distance(self):
         min_distance = 100.0
-        for car in self.simulation.cars :
-            if car.current_road_index < len(car.path) and car.path[car.current_road_index] != self.id :
+        for car in self.simulation.cars:
+            if car.current_road_index < len(car.path) and car.path[car.current_road_index] != self.id:
                 min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8)
         return min_distance
-    
-    def speed_up_vehicles(self, speed) :
-        for vehicle in self.vehicle_array :
+
+    def speed_up_vehicles(self, speed):
+        for vehicle in self.vehicle_array:
             vehicle.speedUp(speed)
 
-    def stop_cars(self, break_distance, stop_distance) :
-        if len(self.vehicle_array) > 0 :
-            if self.vehicle_array[0].x >= self.length - break_distance :
-                self.vehicle_array[0].slowDown(self.max_speed * (self.length - stop_distance - self.vehicle_array[0].x) / (break_distance - stop_distance))
-            if self.vehicle_array[0].x >= self.length - stop_distance :
+    def stop_cars(self, break_distance, stop_distance):
+        if len(self.vehicle_array) > 0:
+            if self.vehicle_array[0].x >= self.length - break_distance:
+                self.vehicle_array[0].slowDown(
+                    self.max_speed * (self.length - stop_distance - self.vehicle_array[0].x) / (
+                                break_distance - stop_distance))
+            if self.vehicle_array[0].x >= self.length - stop_distance:
                 self.vehicle_array[0].stop()
 
-    def move_cars(self, dt = 0.01) :
-        self.vehicle_array = sorted(list(self.vehicles), key = lambda car : car.x, reverse = True)
+    def move_cars(self, dt=0.01):
+        self.vehicle_array = sorted(list(self.vehicles), key=lambda car: car.x, reverse=True)
 
-        if not self.has_right_of_way and not self.has_signal :
+        if not self.has_right_of_way and not self.has_signal:
             # brak pierszeństwa przejazdu i sygnalizacji świetlnej
-            if self.closest_distance() < save_distance :
+            if self.closest_distance() < save_distance:
                 self.stop_cars(break_distance, stop_distance)
             elif self.closest_distance() < 3.0 * save_distance:
                 self.speed_up_vehicles(self.max_speed)
-        else :
-            if self.traffic_signal_state() :
+        else:
+            if self.traffic_signal_state():
                 self.speed_up_vehicles(self.max_speed)
-            elif len(self.vehicle_array) > 0 and self.has_signal :
+            elif len(self.vehicle_array) > 0 and self.has_signal:
                 self.stop_cars(self.signal.break_distance, self.signal.stop_distance)
 
-        for i in range(len(self.vehicle_array)) :
+        for i in range(len(self.vehicle_array)):
             leader = None
-            if i > 0 : leader = self.vehicle_array[i - 1]
-            self.vehicle_array[i].move(dt = dt, leader = leader)
+            if i > 0: leader = self.vehicle_array[i - 1]
+            self.vehicle_array[i].move(dt=dt, leader=leader)
 
     def set_traffic_signal(self, signal, index):
         self.signal = signal
@@ -69,7 +74,6 @@ class Road:
         self.has_signal = True
 
     def traffic_signal_state(self):
-        if self.has_signal :
+        if self.has_signal:
             return self.signal.get_current_state(self.signal_index)
         return True
-        
