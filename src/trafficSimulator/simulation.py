@@ -1,5 +1,6 @@
 import sys
 import time
+import datetime
 
 import numpy as np
 import pygame
@@ -11,7 +12,7 @@ from src.trafficSimulator.road import Road
 
 
 class Simulation:
-    def __init__(self, map_name, speed=50000):
+    def __init__(self, map_name, speed=2):
         self.map_name = map_name
         self.roads = {}
         self.cars = []
@@ -20,6 +21,7 @@ class Simulation:
         self.generator = None
         self.count = 0
         self.start_time = time.time()
+        self.previous = time.time()
         self.measurement_module = Measurements()
 
     def create_car(self, conf, param):
@@ -49,16 +51,21 @@ class Simulation:
 
     def run(self, steps):
         start = time.time()
-        for _ in range(steps):
+        for i in range(steps):
             end = start
+            if i == 0 : end = self.previous
             start = time.time()
+            print(start, end)
+            # dt = max(0.1, (start - end) * self.speed)
             dt = (start - end) * self.speed
+            print(dt)
             for light in self.traffic_lights:
                 light.update(dt)
             for road in self.roads.values():
                 road.move_cars(dt=dt)
             if self.generator:
                 self.generator.generate(time.time() - self.start_time, dt)
+        self.previous = time.time()
         if self.finished():
             self.measurement_module.save_measurements(self)
             pygame.quit()

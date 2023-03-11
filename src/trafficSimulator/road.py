@@ -1,6 +1,6 @@
 from scipy.spatial import distance
 
-save_distance = 20.0
+save_distance = 30.0
 break_distance = 50.0
 stop_distance = 5.0
 
@@ -52,9 +52,9 @@ class Road:
 
         if not self.has_right_of_way and not self.has_signal:
             # brak pierszeństwa przejazdu i sygnalizacji świetlnej
-            if self.closest_distance() < save_distance:
+            if self.closest_distance() < 2.0 * save_distance:
                 self.stop_cars(break_distance, stop_distance)
-            elif self.closest_distance() < 3.0 * save_distance:
+            else :
                 self.speed_up_vehicles(self.max_speed)
         else:
             if self.traffic_signal_state():

@@ -2,3 +2,7 @@
 .idea/
 *.pyc
 src/trafficSimulator/test_1.py
+src/trafficSimulator/measurements.py
+src/trafficSimulator/mongo.py
+src/trafficSimulator/test_2.py
+src/trafficSimulator/time_test.py
