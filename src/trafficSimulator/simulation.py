@@ -1,21 +1,26 @@
+import sys
 import time
 
 import numpy as np
+import pygame
 
+from src.statistics.measurements import Measurements
 from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 
 
 class Simulation:
-    def __init__(self, speed=25):
+    def __init__(self, map_name, speed=50000):
+        self.map_name = map_name
         self.roads = {}
         self.cars = []
         self.traffic_lights = []
         self.speed = speed
-        self.simulation_time = 0.0
         self.generator = None
         self.count = 0
+        self.start_time = time.time()
+        self.measurement_module = Measurements()
 
     def create_car(self, conf, param):
         self.cars.append(Car(simulation=self, conf=conf, parameters=param))
@@ -44,26 +49,30 @@ class Simulation:
 
     def run(self, steps):
         start = time.time()
-        end = time.time()
-        dt = 0
         for _ in range(steps):
             end = start
             start = time.time()
-            dt = max(0.001, start - end)
-            self.simulation_time += dt * self.speed
+            dt = (start - end) * self.speed
             for light in self.traffic_lights:
-                light.update(dt * self.speed)
+                light.update(dt)
             for road in self.roads.values():
-                road.move_cars(dt=dt * self.speed)
-            if self.generator is not None:
-                self.generator.generate(self.speed, self.simulation_time, dt)
+                road.move_cars(dt=dt)
+            if self.generator:
+                self.generator.generate(time.time() - self.start_time, dt)
+        if self.finished():
+            self.measurement_module.save_measurements(self)
+            pygame.quit()
+            sys.exit()
 
     def can_add_car(self, road, position, length):
-        # print(self.roads, road)
         for car in self.roads[road].vehicles:
             if np.abs(car.x - position) < 2.0 * (length + car.length):
-                # print(False)
                 return False
         self.count += 1
-        # print(self.count, True)
+        return True
+
+    def finished(self):
+        for car in self.cars:
+            if not car.finished:
+                return False
         return True

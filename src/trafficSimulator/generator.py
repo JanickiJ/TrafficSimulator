@@ -70,7 +70,7 @@ class Generator :
             # print(self.pathsWithLikelihood[b][1], carType["position"])
             # print(self.summary)
 
-    def generate(self, speed, simulation_time, dt) :
+    def generate(self, simulation_time, dt) :
         new_queue = []
         for car in self.queue :
             if self.simulation.can_add_car(car["path"][0], car["position"], max_car_length) :
@@ -78,7 +78,7 @@ class Generator :
             else :
                 new_queue.append(car)
         self.queue = new_queue
-        if np.random.uniform(0, 1.0) <= speed * self.intensity_function(simulation_time) * dt : 
+        if np.random.uniform(0, 1.0) <= self.intensity_function(simulation_time) * dt :
             self.generateCars(1)
 
         

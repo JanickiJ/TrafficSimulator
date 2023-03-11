@@ -1,4 +1,7 @@
+from time import time
+
 import numpy as np
+import pygame
 
 from src.trafficSimulator.generator import max_car_length
 
@@ -6,8 +9,8 @@ from src.trafficSimulator.generator import max_car_length
 class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
         self.simulation = simulation
-
         self.set_vehicle_parameters(parameters)
+        self.road_times = []
 
         for attr, val in conf.items():
             setattr(self, attr, val)
@@ -92,6 +95,7 @@ class Car:
         self.simulation.roads[current_road].remove_vehicle(self)
         self.current_road_index += 1
         self.add_to_road()
+        self.road_times.append(time() - self.simulation.start_time)
 
     def get_position(self):
         r = self.path[self.current_road_index]

@@ -1,7 +1,7 @@
 from src.trafficSimulator.simulation import Simulation
 from src.trafficSimulator.window import Window
 
-sim = Simulation()
+sim = Simulation("TEST_2", speed=50000)
 
 # Add multiple roads
 sim.set_roads([
@@ -24,6 +24,7 @@ sim.set_vehicles([
 ])
 
 # Start simulation
+
 win = Window(sim)
 win.offset = (-150, -110)
-win.run(steps_per_update=5)
+win.run(steps_per_update=1)

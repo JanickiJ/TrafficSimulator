@@ -91,7 +91,7 @@ def set_traffic_light(sim):
 
 
 def test1():
-    sim = Simulation()
+    sim = Simulation("TEST_1_1")
     set_simple_roads(sim)
     sim.set_vehicles([
         ({}, {"id": 1, "maximum_speed": 10.0, "path": [5, 4, 3], "position": 60}),
@@ -107,7 +107,7 @@ def test1():
 
 def test2():
     # all cars created in one moment (befor starting simulation)
-    sim = Simulation()
+    sim = Simulation("TEST_1_2")
     set_simple_roads(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 15.0, "a_max": 2.5, "b_max": 5.0}),
@@ -136,7 +136,7 @@ def intensityFunction(t):
 
 def test3():
     # car are being created during simulation
-    sim = Simulation()
+    sim = Simulation("TEST_1_3")
     set_simple_roads(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 15.0, "a_max": 2.5, "b_max": 5.0}),
@@ -165,7 +165,7 @@ def intensityFunction2(t):
 
 def test4():
     # more cars are being created during simulation 
-    sim = Simulation()
+    sim = Simulation("TEST_1_4")
     set_simple_roads(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 15.0, "a_max": 2.5, "b_max": 5.0}),
@@ -190,7 +190,7 @@ def test4():
 
 def test5():
     # speed limit test 
-    sim = Simulation()
+    sim = Simulation("TEST_1_5")
     set_roads_with_speed_limits(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
@@ -215,7 +215,7 @@ def test5():
 
 def test6():
     # traffic light test
-    sim = Simulation()
+    sim = Simulation("TEST_1_6")
     set_roads_with_traffic_light(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
@@ -240,7 +240,7 @@ def test6():
 
 def test7():
     # traffic light and right of way test
-    sim = Simulation()
+    sim = Simulation("TEST_1_7")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
@@ -265,7 +265,7 @@ def test7():
 
 def test8():
     # traffic light and right of way test
-    sim = Simulation()
+    sim = Simulation("TEST_1_8")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
