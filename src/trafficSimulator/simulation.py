@@ -1,4 +1,5 @@
 import time
+
 import numpy as np
 
 from src.trafficSimulator.car import Car
@@ -33,7 +34,6 @@ class Simulation:
 
     def set_roads(self, road_list):
         for road in road_list:
-            print(road)
             self.create_road(**road)
 
     def set_generator(self, generator):
@@ -55,7 +55,7 @@ class Simulation:
                 light.update(dt * self.speed)
             for road in self.roads.values():
                 road.move_cars(dt=dt * self.speed)
-            if self.generator != None:
+            if self.generator is not None:
                 self.generator.generate(self.speed, self.simulation_time, dt)
 
     def can_add_car(self, road, position, length):

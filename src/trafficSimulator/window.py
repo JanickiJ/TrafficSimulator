@@ -1,8 +1,6 @@
-import math
-
+import numpy as np
 import pygame
 from pygame import gfxdraw
-import numpy as np
 
 from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
@@ -240,7 +238,6 @@ class Window:
                 self.draw_road(road)
 
     def draw_curve(self, curve: Curve):
-        print(curve.length, curve.start, curve.length, curve.end, curve)
         roads = curve.as_roads(resolution=10)
         for road in roads:
             self.draw_road(road)

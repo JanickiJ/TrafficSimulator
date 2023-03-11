@@ -1,7 +1,6 @@
 import numpy as np
 
 from src.trafficSimulator.generator import max_car_length
-from src.trafficSimulator.curve import Curve
 
 
 class Car:
@@ -103,11 +102,7 @@ class Car:
     def detect_potential_leader(self):
         if self.current_road_index + 1 < len(self.path):
             next_road_idx = self.path[self.current_road_index + 1]
-            current_road_idx = self.path[self.current_road_index]
             next_road = self.simulation.roads[next_road_idx]
-            current_road = self.simulation.roads[current_road_idx]
-            if isinstance(current_road, Curve) and isinstance(current_road, Curve):
-                return None
             if len(next_road.vehicle_array) > 0:
                 return next_road.vehicle_array[-1]
         return None
@@ -119,29 +114,30 @@ class Car:
         self.x += dx
         self.v = max(0.0, self.v + self.a * dt)
 
-        follow_corection = 0
+        follow_correction = 0
 
         potential_leader = self.detect_potential_leader()
         # jeśeli pojazd podąża za kimś
         if leader:
             delta_x = leader.x - self.x - leader.length
             delta_v = self.v - leader.v
-            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
+            follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
         elif potential_leader:
-            delta_x = potential_leader.x + self.simulation.roads[self.path[self.current_road_index]].length - self.x
+            delta_x = potential_leader.x + self.simulation.roads[
+                self.path[self.current_road_index]].length - self.x - potential_leader.length
             delta_v = self.v - potential_leader.v
-            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
+            follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
         if self.v > self.v_max:
             delta_x = 2 * self.length
             delta_v = self.v - self.v_max
-            follow_corection = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
+            follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
         if self.v_max == 0.0:
             self.a = -self.a_max
         else:
-            self.a = self.a_max * (1 - (self.v / self.v_max) ** 4 - follow_corection ** 2)
+            self.a = self.a_max * (1 - (self.v / self.v_max) ** 4 - follow_correction ** 2)
 
         if self.stopped:
             if self.v_max == 0.0:

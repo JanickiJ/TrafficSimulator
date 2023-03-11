@@ -1,6 +1,5 @@
 from scipy.spatial import distance
 
-
 save_distance = 20.0
 break_distance = 50.0
 stop_distance = 5.0
@@ -44,7 +43,7 @@ class Road:
             if self.vehicle_array[0].x >= self.length - break_distance:
                 self.vehicle_array[0].slowDown(
                     self.max_speed * (self.length - stop_distance - self.vehicle_array[0].x) / (
-                                break_distance - stop_distance))
+                            break_distance - stop_distance))
             if self.vehicle_array[0].x >= self.length - stop_distance:
                 self.vehicle_array[0].stop()
 
