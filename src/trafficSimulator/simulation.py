@@ -72,6 +72,8 @@ class Simulation:
         return True
 
     def finished(self):
+        if not self.cars:
+            return False
         for car in self.cars:
             if not car.finished:
                 return False

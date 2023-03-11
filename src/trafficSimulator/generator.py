@@ -78,6 +78,7 @@ class Generator :
             else :
                 new_queue.append(car)
         self.queue = new_queue
+        print(simulation_time, self.intensity_function(simulation_time) * dt)
         if np.random.uniform(0, 1.0) <= self.intensity_function(simulation_time) * dt :
             self.generateCars(1)
 
