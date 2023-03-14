@@ -1,18 +1,22 @@
 from scipy.spatial import distance
 
-save_distance = 30.0
-break_distance = 50.0
-stop_distance = 5.0
+save_distance = 5.0
+break_distance = 25.0
+stop_distance = 4.0
 
 
 class Road:
-    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True):
+    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True, do_move = False):
         self.id = id
         self.start = start
         self.end = end
         self.length = distance.euclidean(self.start, self.end)
         self.angle_sin = (self.end[1] - self.start[1]) / self.length
         self.angle_cos = (self.end[0] - self.start[0]) / self.length
+        if do_move:
+            dx, dy = 2.0 * self.angle_sin, -2.0 * self.angle_cos
+            self.start = (self.start[0] - dx, self.start[1] - dy)
+            self.end = (self.end[0] - dx, self.end[1] - dy)
         self.vehicles = set()
         self.max_speed = max_speed
         self.has_right_of_way = right_of_way
@@ -30,7 +34,7 @@ class Road:
     def closest_distance(self):
         min_distance = 100.0
         for car in self.simulation.cars:
-            if car.current_road_index < len(car.path) and car.path[car.current_road_index] != self.id:
+            if car.current_road_index < len(car.path) and car.path[car.current_road_index] > self.id:
                 min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8)
         return min_distance
 

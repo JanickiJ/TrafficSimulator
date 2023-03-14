@@ -245,7 +245,7 @@ class Window:
     def draw_road(self, road: Road):
         self.rotated_box(
             road.start,
-            (road.length, 3.7),
+            (road.length, 4.0),
             cos=road.angle_cos,
             sin=road.angle_sin,
             color=(180, 180, 220),
@@ -302,7 +302,11 @@ class Window:
         x = road_substitute.start[0] + cos * (vehicle_x - 1.0)
         y = road_substitute.start[1] + sin * (vehicle_x - 1.0)
 
-        self.rotated_box((x, y), (l, h), cos=cos, sin=sin, centered=True)
+        color = (0, 0, 255)
+        # if not self.sim.roads[vehicle.path[vehicle.current_road_index]].has_right_of_way : color = (0, 255, 255)
+        # and self.sim.roads[vehicle.path[vehicle.current_road_index]].closest_distance() < 60.0 
+
+        self.rotated_box((x, y), (l, h), cos=cos, sin=sin, color=color, centered=True)
 
     def draw_vehicles(self):
         for road in self.sim.roads.values():

@@ -31,11 +31,11 @@ class Simulation:
         for vehicle in vehicles:
             self.create_car(vehicle[0], vehicle[1])
 
-    def create_road(self, start, end, id, speed_limit=13.83, right_of_way=True, control_point=None):
+    def create_road(self, start, end, id, speed_limit=13.83, right_of_way=True, control_point=None, do_move = False):
         if control_point:
             road = Curve(id, start, end, self, control_point, speed_limit=speed_limit, right_of_way=right_of_way)
         else:
-            road = Road(id, start, end, self, speed_limit, right_of_way)
+            road = Road(id, start, end, self, speed_limit, right_of_way, do_move)
         self.roads[id] = road
         return road
 

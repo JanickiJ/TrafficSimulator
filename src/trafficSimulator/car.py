@@ -4,6 +4,8 @@ import numpy as np
 import pygame
 
 from src.trafficSimulator.generator import max_car_length
+from generator import max_car_length
+from road import save_distance
 
 
 class Car:
@@ -18,7 +20,7 @@ class Car:
     def set_vehicle_parameters(self, parameters):
         default = {
             "id": 0,
-            "length": 5.0,
+            "length": 4.6,
             "delta_s0": 1.0,
             "break_reaction_time": 0.3,
             "avarage_reaction_time": 0.85,
@@ -88,9 +90,14 @@ class Car:
         self.v = 0
         self.a = 0
         self.stopped = False
+        self.slowedDown = False
         self.finished = False
 
     def change_road(self, current_road):
+        if not self.simulation.roads[current_road].has_right_of_way :
+            if self.simulation.roads[current_road].closest_distance() < save_distance :
+                self.stop()
+                return
         self.x -= self.simulation.roads[current_road].length
         self.simulation.roads[current_road].remove_vehicle(self)
         self.current_road_index += 1
@@ -163,8 +170,10 @@ class Car:
         self.stopped = False
 
     def slowDown(self, v):
+        self.slowedDown = True
         self.v_max = max(0.0, v)
 
     def speedUp(self, v):
         self.start()
+        self.slowedDown = False
         self.v_max = min(v, self._v_max)
