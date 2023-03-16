@@ -3,6 +3,7 @@ from src.trafficSimulator.simulation import Simulation
 from src.trafficSimulator.traffic_lights import TrafficSignal
 from src.trafficSimulator.window import Window
 
+
 def run_simulation(sim):
     win = Window(sim)
     win.offset = (-150, -110)
@@ -136,7 +137,7 @@ def set_roads_with_right_of_way(sim):
         ((930, 990), (780, 990), 121, 15.00, True, True),
         ((780, 990), (930, 990), 122, 15.00, True, True),
         ((930, 990), (960, 980), 123, 15.00, True, True),
-        ((960, 980), (930, 990), 124, 15.00, False, True),
+        ((960, 980), (930, 990), 124, 15.00, True, True),
         ((940, 860), (960, 980), 125, 16.66, True, True),
         ((960, 980), (940, 860), 126, 16.66, True, True),
         ((980, 1010), (1010, 1100), 127, 16.66, False, True),
@@ -150,7 +151,7 @@ def set_roads_with_right_of_way(sim):
         ((1010, 890), (1020, 980), 135, 11.11, True, False)
     ]
     def road_with_speed_limit_mapper(x): return {"start": x[0], "end": x[1], "id": x[2], "speed_limit": x[3], "right_of_way": x[4], "do_move": x[5]}
-    sim.set_roads(list(map(road_with_speed_limit_mapper, data)))
+    sim.set_roads(list(map(road_with_speed_limit_mapper, data)), True)
     # sim.set_lights(set_traffic_light(sim))
 
 
@@ -158,7 +159,7 @@ def set_traffic_light(sim):
     return [TrafficSignal([(1, 2), (6, 14)], sim)]      
 
 
-def test8():
+def test1():
     # traffic light and right of way test
     sim = Simulation("TEST_1_8")
     set_roads_with_right_of_way(sim)
@@ -195,13 +196,7 @@ def test8():
 
 
 def runTests():
-    # test1()
-    # test2()
-    # test3()
-    # test4()
-    # test5()
-    # test6()
-    test8()
+    test1()
 
 
 if __name__ == "__main__":
