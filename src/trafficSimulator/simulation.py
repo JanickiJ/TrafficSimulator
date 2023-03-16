@@ -1,6 +1,5 @@
 import sys
 import time
-import datetime
 
 import numpy as np
 import pygame
@@ -9,6 +8,7 @@ from src.statistics.measurements import Measurements
 from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
+from src.trafficSimulator.graph import Graph
 
 
 class Simulation:
@@ -23,6 +23,7 @@ class Simulation:
         self.start_time = time.time()
         self.previous = time.time()
         self.measurement_module = Measurements()
+        self.graph = Graph()
 
     def create_car(self, conf, param):
         self.cars.append(Car(simulation=self, conf=conf, parameters=param))
@@ -37,11 +38,13 @@ class Simulation:
         else:
             road = Road(id, start, end, self, speed_limit, right_of_way, do_move)
         self.roads[id] = road
+        self.graph.add_edge(start, end, road)
         return road
 
-    def set_roads(self, road_list):
+    def set_roads(self, road_list, do_set_coincident = False):
         for road in road_list:
             self.create_road(**road)
+        if do_set_coincident: self.set_coincidence()
 
     def set_generator(self, generator):
         self.generator = generator
@@ -85,3 +88,7 @@ class Simulation:
             if not car.finished:
                 return False
         return True
+    
+    def set_coincidence(self):
+        self.graph.set_concidence()
+

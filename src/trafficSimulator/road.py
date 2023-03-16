@@ -14,6 +14,7 @@ class Road:
         self.id = id
         self.start = start
         self.end = end
+        self.end_ = end
         self.length = distance.euclidean(self.start, self.end)
         self.angle_sin = (self.end[1] - self.start[1]) / self.length
         self.angle_cos = (self.end[0] - self.start[0]) / self.length
@@ -27,6 +28,8 @@ class Road:
         self.has_signal = False
         self.simulation = sim
         self.vehicle_array = []
+        self.expected_time = self.length / self.max_speed
+        self.do_set_coincident = False
 
     def add_vehicle(self, vehicle):
         self.vehicles.add(vehicle)
@@ -84,3 +87,30 @@ class Road:
         if self.has_signal:
             return self.signal.get_current_state(self.signal_index)
         return True
+    
+    def set_coincident_roads(self, roads):
+        self.do_set_coincident = True
+        self.coincident_roads = []
+        self.potential_coincident = []
+        for road in roads:
+            if road.id != self.id:
+                if self.has_right_of_way:
+                    if road.has_right_of_way:
+                        if (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0]) > 0 :
+                            self.coincident_roads.append(road)
+                        elif (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0]) == 0 :
+                            self.potential_coincident.append(road)
+                else :
+                    if road.has_right_of_way or (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0])  > 0 :
+                        self.coincident_roads.append(road)
+                    elif (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0])  == 0 :
+                        self.potential_coincident.append(road)
+        print(f"Road {self.id}", "coincident: ")
+        for road in self.coincident_roads :
+            print(road)
+        print(f"Potential coincident: ")
+        for road in self.potential_coincident :
+            print(road)
+        print()
+
+        
