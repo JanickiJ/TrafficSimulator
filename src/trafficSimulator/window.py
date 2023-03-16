@@ -6,6 +6,7 @@ from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 
+road_width = 4.0
 
 class Window:
     def __init__(self, sim, config={}):
@@ -243,12 +244,18 @@ class Window:
             self.draw_road(road)
 
     def draw_road(self, road: Road):
+        def_time = road.length  / road.max_speed
+        traffic = 2.0 * (road.expected_time - def_time) / def_time
+        r = min(255, 128 + 64 * traffic)
+        g = max(0, 172 - 48 * np.abs(traffic - 1.0))
+        b = g#max(0, 172 - 48 * np.abs(traffic - 1.0))
+        print(r, g, b)
         self.rotated_box(
             road.start,
-            (road.length, 4.0),
+            (road.length, road_width),
             cos=road.angle_cos,
             sin=road.angle_sin,
-            color=(180, 180, 220),
+            color=(r, g, b),
             centered=False
         )
         # Draw road lines
