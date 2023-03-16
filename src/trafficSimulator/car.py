@@ -96,7 +96,7 @@ class Car:
         self.finished = False
 
     def change_road(self, current_road):
-        if not self.simulation.roads[current_road].has_right_of_way :
+        if not self.simulation.roads[current_road].has_right_of_way :  # wymaga poprawy, bo teraz może mieć prawo pierwszeństwa, ale jednocześnie byc zmuszonym do puszczenie ainnego pojazdu
             if self.simulation.roads[current_road].closest_distance() < save_distance :
                 self.stop()
                 return
@@ -160,14 +160,15 @@ class Car:
                 self.a = -self.b_max * self.v / self.v_max
 
         current_road = self.path[self.current_road_index]
-        if self.x > self.simulation.roads[current_road].length:
+        if self.x > self.simulation.roads[current_road].length - save_distance / 2.0:
             self.change_road(current_road)
 
     def finish(self):
         self.finished = True
 
     def stop(self):
-        self.stopped = True
+        if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
+            self.stopped = True
 
     def start(self):
         self.stopped = False

@@ -7,7 +7,7 @@ from queue import LifoQueue
 
 save_distance = 5.0
 break_distance = 25.0
-stop_distance = 10.0
+stop_distance = 15.0
 
 
 class Road:
