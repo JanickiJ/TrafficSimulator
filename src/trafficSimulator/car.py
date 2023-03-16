@@ -3,7 +3,7 @@ from time import time
 import numpy as np
 import pygame
 
-from src.trafficSimulator.generator import max_car_length
+from src.trafficSimulator.generator import max_car_length, max_vehicle_width
 from src.trafficSimulator.road import save_distance
 
 
@@ -11,7 +11,7 @@ class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
         self.simulation = simulation
         self.set_vehicle_parameters(parameters)
-        self.road_times = []
+        self.road_times = [time()]
 
         for attr, val in conf.items():
             setattr(self, attr, val)
@@ -101,10 +101,10 @@ class Car:
                 self.stop()
                 return
         self.x -= self.simulation.roads[current_road].length
-        self.simulation.roads[current_road].remove_vehicle(self)
+        self.road_times.append(time())
+        self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2])
         self.current_road_index += 1
         self.add_to_road()
-        self.road_times.append(time() - self.simulation.start_time)
 
     def get_position(self):
         r = self.path[self.current_road_index]

@@ -58,10 +58,10 @@ class Simulation:
             end = start
             if i == 0 : end = self.previous
             start = time.time()
-            print(start, end)
+            # print(start, end)
             # dt = max(0.1, (start - end) * self.speed)
             dt = (start - end) * self.speed
-            print(dt)
+            # print(dt)
             for light in self.traffic_lights:
                 light.update(dt)
             for road in self.roads.values():

@@ -1,6 +1,7 @@
 from scipy.spatial import distance
 
 from src.trafficSimulator.generator import max_car_length
+from queue import LifoQueue
 
 # from generator import max_car_length
 
@@ -29,14 +30,21 @@ class Road:
         self.simulation = sim
         self.vehicle_array = []
         self.expected_time = self.length / self.max_speed
+        self.timeQueue = LifoQueue()
+        for _ in range(10) :
+            self.timeQueue.put(self.expected_time)
         self.do_set_coincident = False
 
     def add_vehicle(self, vehicle):
         self.vehicles.add(vehicle)
 
-    def remove_vehicle(self, vehicle):
+    def remove_vehicle(self, vehicle, dt):
         if vehicle in self.vehicles:
             self.vehicles.remove(vehicle)
+            if dt:
+                old_dt = self.timeQueue.get()
+                self.expected_time = (10.0 * self.expected_time - old_dt + dt) / 10.0
+                self.timeQueue.put(dt)
 
     def closest_distance(self):
         min_distance = 100.0
