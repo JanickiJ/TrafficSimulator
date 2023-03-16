@@ -4,8 +4,7 @@ import numpy as np
 import pygame
 
 from src.trafficSimulator.generator import max_car_length
-from generator import max_car_length
-from road import save_distance
+from src.trafficSimulator.road import save_distance
 
 
 class Car:
@@ -21,6 +20,7 @@ class Car:
         default = {
             "id": 0,
             "length": 4.6,
+            "width": 2.0,
             "delta_s0": 1.0,
             "break_reaction_time": 0.3,
             "avarage_reaction_time": 0.85,
@@ -38,6 +38,7 @@ class Car:
 
         if "id" not in parameters.keys(): parameters["id"] = default["id"]
         if "length" not in parameters.keys(): parameters["length"] = default["length"]
+        if "width" not in parameters.keys(): parameters["width"] = default["width"]
         if "delta_s0" not in parameters.keys(): parameters["delta_s0"] = default["delta_s0"]
         if "break_reaction_time" not in parameters.keys(): parameters["break_reaction_time"] = default[
             "break_reaction_time"]
@@ -67,6 +68,7 @@ class Car:
     def set_parameters(self, parameters):
         self.id = parameters["id"]
         self.length = min(max_car_length, parameters["length"])
+        self.width = min(max_vehicle_width, parameters["width"])
         self.s0 = self.length + parameters["delta_s0"]
         self.break_reaction_time = parameters[
             "break_reaction_time"]  # czas potrzebny na przeniesienie nacisku na pedał hamulca na koła

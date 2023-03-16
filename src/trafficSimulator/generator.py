@@ -1,6 +1,7 @@
 import numpy as np
 
 max_car_length = 12.5
+max_vehicle_width = 3.0
 
 def id(a) :
     return a

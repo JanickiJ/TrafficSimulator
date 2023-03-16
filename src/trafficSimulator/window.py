@@ -290,7 +290,7 @@ class Window:
             )
 
     def draw_vehicle(self, vehicle: Car, road: Road):
-        l, h = vehicle.length, 2
+        l, h = vehicle.length, vehicle.width
         vehicle_x = vehicle.x
         road_substitute = road
         if isinstance(road, Curve):
