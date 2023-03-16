@@ -114,3 +114,5 @@ class Road:
         print()
 
         
+    def __str__(self) :
+        return f"Road {self.id}"
