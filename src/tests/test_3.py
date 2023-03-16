@@ -168,7 +168,10 @@ def test1():
         (1, {"length": 4.6, "break_reaction_time": 0.25, "maximum_speed": 35.0, "a_max": 4.5, "b_max": 7.2}),
         (4, {"maximum_speed": 25.0}),
         (2, {"maximum_speed": 20.0}),
-        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 50.0})
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 50.0}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 12.0, "length": 1.6, "a_max": 2.0, "width": 0.8}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 25.0, "length": 1.75, "a_max": 2.5, "width": 1.2})
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 5.0, "length": 0.6, "a_max": 1.5, "width": 0.6})
     ], paths=[
         (1, [2, 8, 89, 87, 118, 120, 122]),
         (1, [122, 114, 82, 16, 10, 1]),

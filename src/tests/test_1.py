@@ -319,6 +319,8 @@ def test9():
         (4, {"maximum_speed": 45.0}),
         (2, {"maximum_speed": 40.0}),
         (1, {"avarage_reaction_time": 0.75, "maximum_speed": 50.0}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 12.0, "a_max": 2.0, "width": 0.8}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 25.0, "a_max": 2.5, "width": 1.2})
     ], paths=[
         (1, [5, 4, 3]),
         (1, [8, 7]),
