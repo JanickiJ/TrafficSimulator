@@ -40,9 +40,16 @@ class Road:
 
     def closest_distance(self):
         min_distance = 100.0
-        for car in self.simulation.cars:
-            if car.current_road_index < len(car.path) and car.path[car.current_road_index] > self.id:
-                min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8)
+        if self.do_set_coincident :
+            for road in self.coincident_roads :
+                for car in road.vehicle_array :
+                    if car.current_road_index < len(car.path):
+                        min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length)
+                    break
+        else :
+            for car in self.simulation.cars:
+                if car.current_road_index < len(car.path) and car.path[car.current_road_index] > self.id:
+                    min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length)
         return min_distance
 
     def speed_up_vehicles(self, speed):

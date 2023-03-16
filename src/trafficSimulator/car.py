@@ -139,6 +139,7 @@ class Car:
         elif potential_leader:
             delta_x = potential_leader.x + self.simulation.roads[
                 self.path[self.current_road_index]].length - self.x - potential_leader.length
+            if delta_x < save_distance + self.length : delta_x = self.simulation.roads[self.path[self.current_road_index]].length - self.x - stop_distance
             delta_v = self.v - potential_leader.v
             follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
