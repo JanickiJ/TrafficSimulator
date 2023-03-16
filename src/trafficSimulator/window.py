@@ -249,7 +249,7 @@ class Window:
         r = min(255, 128 + 64 * traffic)
         g = max(0, 172 - 48 * np.abs(traffic - 1.0))
         b = g#max(0, 172 - 48 * np.abs(traffic - 1.0))
-        print(r, g, b)
+        # print(r, g, b)
         self.rotated_box(
             road.start,
             (road.length, road_width),
