@@ -3,7 +3,6 @@ from src.trafficSimulator.simulation import Simulation
 from src.trafficSimulator.traffic_lights import TrafficSignal
 from src.trafficSimulator.window import Window
 
-
 def run_simulation(sim):
     win = Window(sim)
     win.offset = (-150, -110)
@@ -115,8 +114,8 @@ def set_roads_with_right_of_way(sim):
         ((1090, 1020), (1230, 960), 99, 15.00, True, True),
         ((1230, 1160), (1090, 1020), 100, 15.00, False, True),
         ((1090, 1020), (1230, 1160), 101, 15.00, False, True),
-        ((1060, 1230), (1010, 1100), 102, 15.00, False, True),
-        ((1010, 1100), (1060, 1230), 103, 15.00, False, True),
+        ((1060, 1230), (1010, 1100), 102, 15.00, True, True),
+        ((1010, 1100), (1060, 1230), 103, 15.00, True, True),
         ((1010, 1100), (1090, 1020), 104, 15.00, True, True),
         ((1090, 1020), (1010, 1100), 105, 15.00, True, True),
         ((1060, 990), (1090, 1020), 106, 11.11, True, False),
@@ -170,7 +169,7 @@ def test1():
         (2, {"maximum_speed": 20.0}),
         (1, {"avarage_reaction_time": 0.75, "maximum_speed": 50.0}),
         (1, {"avarage_reaction_time": 0.75, "maximum_speed": 12.0, "length": 1.6, "a_max": 2.0, "width": 0.8}),
-        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 25.0, "length": 1.75, "a_max": 2.5, "width": 1.2})
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 25.0, "length": 1.75, "a_max": 2.5, "width": 1.2}),
         (1, {"avarage_reaction_time": 0.75, "maximum_speed": 5.0, "length": 0.6, "a_max": 1.5, "width": 0.6})
     ], paths=[
         (1, [2, 8, 89, 87, 118, 120, 122]),
@@ -179,7 +178,7 @@ def test1():
         (1, [59, 110, 128]),
         (1, [60, 18, 81, 84, 83, 82, 17, 20]),
         (1, [19, 21, 62, 66, 102, 104, 101, 79, 61, 24]),
-        (1, [23, 25, 64, 102, 127, 123, 113, 120, 114, 82, 16, 10, 8, 6]),
+        (1, [23, 25, 64]),
         (1, [5, 57, 54, 49, 48, 44, 40, 36, 34, 30, 26, 22, 18, 16, 10, 8, 6]),
         (1, [18, 81, 115, 122, 124, 134, 128, 104, 99, 92, 71, 44]),
         (1, [43, 72, 93, 96, 111, 125, 123, 119, 120, 122, 124, 109, 60]),
