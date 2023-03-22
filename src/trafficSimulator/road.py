@@ -90,26 +90,26 @@ class Road:
                 for car in road.vehicle_array:
                     if car.current_road_index < len(car.path) \
                         and distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length < 2 * save_distance :
-                            return False
+                            return True
                     break
-        return True
+        return False
     
     def check_right(self, own_move, do_check_with = False) :
         for road in self.right_roads:
             if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
-                if not self.avoid_collision(own_move, road): return False
+                if self.avoid_collision(own_move, road): return False
         return True
 
     def check_ahead(self, own_move, do_check_with = False):
         for road in self.ahead_roads:
             if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
-                if not self.avoid_collision(own_move, road): return False
+                if self.avoid_collision(own_move, road): return False
         return True
     
     def check_left(self, own_move, do_check_with = False):
         for road in self.left_roads:
             if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
-                if not self.avoid_collision(own_move, road): return False
+                if self.avoid_collision(own_move, road): return False
         return True
                 
     
@@ -159,7 +159,7 @@ class Road:
                 self.speed_up_vehicles(self.max_speed)
         else:
             if self.traffic_signal_state():
-                self.speed_up_vehicles(self.max_speed)
+                self.speed_up_vehicles(self.max_speed)                
             elif len(self.vehicle_array) > 0 and self.has_signal:
                 self.stop_cars(self.signal.break_distance, self.signal.stop_distance)
 
