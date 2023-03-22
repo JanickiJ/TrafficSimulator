@@ -58,7 +58,7 @@ class Car:
         self.set_parameters(parameters)
 
         self.add_to_road()
-
+    
     def add_to_road(self):
         if self.current_road_index < len(self.path):
             current_road = self.path[self.current_road_index]
@@ -106,7 +106,7 @@ class Car:
                 return
         self.x -= self.simulation.roads[current_road].length
         self.road_times.append(time())
-        self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2])
+        self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2], index = self.current_road_index)
         self.current_road_index += 1
         self.add_to_road()
 
@@ -164,6 +164,8 @@ class Car:
                 self.a = -self.b_max * self.v / self.v_max
 
         current_road = self.path[self.current_road_index]
+        if self.x > self.simulation.roads[current_road].length:
+            self.x = self.simulation.roads[current_road].length
         if self.x > self.simulation.roads[current_road].length - save_distance / 2.0:
             self.change_road(current_road)
 
