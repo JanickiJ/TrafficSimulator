@@ -105,6 +105,20 @@ def set_roads_with_right_of_way_modified(sim):
     sim.set_roads(list(map(road_with_speed_limit_mapper, data)), do_set_coincident = True)
     sim.set_lights(set_traffic_light(sim))
 
+def set_simple_crossroad(sim):
+    data =[
+        ((0, 200), (200, 200), 1, 15.00, False, True),
+        ((150, 0), (200, 200), 2, 15.00, True, True),
+        ((400, 200), (200, 200), 3, 15.00, False, True),
+        ((200, 400), (200, 200), 4, 15.00, True, True),
+        ((200, 200), (0, 200), 5, 15.00, True, True),
+        ((200, 200), (150, 0), 6, 15.00, True, True),
+        ((200, 200), (400, 200), 7, 15.00, True, True),
+        ((200, 200), (200, 400), 8, 15.00, True, True),
+    ]
+    def road_with_speed_limit_mapper(x): return {"start": x[0], "end": x[1], "id": x[2], "speed_limit": x[3], "right_of_way": x[4], "do_move": x[5]}
+    sim.set_roads(list(map(road_with_speed_limit_mapper, data)), do_set_coincident = True)
+
 
 def set_traffic_light(sim):
     return [TrafficSignal([(1, 2), (6, 14)], sim)]
@@ -311,7 +325,7 @@ def test8():
 
 def test9():
     # traffic light and right of way test
-    sim = Simulation("TEST_1_8")
+    sim = Simulation("TEST_1_9")
     set_roads_with_right_of_way_modified(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 45.0, "a_max": 2.5, "b_max": 5.0}),
@@ -336,16 +350,48 @@ def test9():
     sim.set_generator(gen)
     run_simulation(sim)
 
+def test10() :
+    # Crossroad deadlock avoidance test
+    sim = Simulation("TEST_1_10")
+    set_simple_crossroad(sim)
+    gen = Generator(carTypes=[
+        (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 45.0, "a_max": 2.5, "b_max": 5.0}),
+        (1, {"length": 4.6, "break_reaction_time": 0.25, "maximum_speed": 35.0, "a_max": 4.5, "b_max": 7.2}),
+        (4, {"maximum_speed": 45.0}),
+        (2, {"maximum_speed": 40.0}),
+    ], paths=[
+        (1, [1, 8]),
+        (1, [1, 7]),
+        (1, [1, 8]),
+        (1, [2, 5]),
+        (1, [2, 7]),
+        (1, [2, 8]),
+        (1, [3, 5]),
+        (1, [3, 6]),
+        (1, [3, 8]),
+        (1, [4, 5]),
+        (1, [4, 6]),
+        (1, [4, 7]),
+    ], simulation=sim, intensity_function=intensityFunction2)
+    sim.set_generator(gen)
+    # gen.generateCars(10)
+    run_simulation(sim)
+
+
+     
+
 
 def runTests():
     # test1()
     # test2()
     # test3()
     # test4()
-    # test5()
+    test5()
     # test6()
+    # test7()
     # test8()
-    test9()
+    # test9()
+    # test10()
 
 
 if __name__ == "__main__":
