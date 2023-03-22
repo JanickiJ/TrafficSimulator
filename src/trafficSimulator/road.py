@@ -10,7 +10,7 @@ save_distance = 5.0
 break_distance = 25.0
 stop_distance = 15.0
 
-
+queue_size = 5
 
 def det_3(a,b,c):
     a_x, a_y = a
@@ -51,19 +51,19 @@ class Road:
         self.right_roads = []
         self.ahead_roads = []
         self.left_roads = []
-        for _ in range(10) :
+        for _ in range(queue_size) :
             self.timeQueue.put(self.expected_time)
         self.do_set_coincident = False
 
     def add_vehicle(self, vehicle):
         self.vehicles.add(vehicle)
 
-    def remove_vehicle(self, vehicle, dt):
+    def remove_vehicle(self, vehicle, dt, index = 0):
         if vehicle in self.vehicles:
             self.vehicles.remove(vehicle)
-            if dt:
+            if index > 0 and dt:
                 old_dt = self.timeQueue.get()
-                self.expected_time = (10.0 * self.expected_time - old_dt + dt) / 10.0
+                self.expected_time = (queue_size * self.expected_time - old_dt + dt) / queue_size
                 self.timeQueue.put(dt)
     
     def get_car_move(self):
