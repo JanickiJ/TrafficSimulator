@@ -6,6 +6,10 @@ from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 
+# from car import Car
+# from curve import Curve
+# from road import Road
+
 road_width = 4.0
 
 class Window:
@@ -309,7 +313,7 @@ class Window:
         x = road_substitute.start[0] + cos * (vehicle_x - 1.0)
         y = road_substitute.start[1] + sin * (vehicle_x - 1.0)
 
-        color = (0, 0, 255)
+        color = (0, 255, 255)
         # if not self.sim.roads[vehicle.path[vehicle.current_road_index]].has_right_of_way : color = (0, 255, 255)
         # and self.sim.roads[vehicle.path[vehicle.current_road_index]].closest_distance() < 60.0 
 

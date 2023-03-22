@@ -5,6 +5,8 @@ import pygame
 
 from src.trafficSimulator.generator import max_car_length, max_vehicle_width
 from src.trafficSimulator.road import save_distance
+# from generator import max_car_length, max_vehicle_width
+# from road import save_distance, stop_distance
 
 
 class Car:
@@ -94,10 +96,12 @@ class Car:
         self.stopped = False
         self.slowedDown = False
         self.finished = False
+        self.counter = 0
 
     def change_road(self, current_road):
-        if not self.simulation.roads[current_road].has_right_of_way :  # wymaga poprawy, bo teraz może mieć prawo pierwszeństwa, ale jednocześnie byc zmuszonym do puszczenie ainnego pojazdu
-            if self.simulation.roads[current_road].closest_distance() < save_distance :
+        potential_leader = self.detect_potential_leader()
+        if potential_leader:
+            if potential_leader.x < 2 * self.length: 
                 self.stop()
                 return
         self.x -= self.simulation.roads[current_road].length
@@ -170,6 +174,10 @@ class Car:
         if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
             self.stopped = True
 
+    def stop_cond(self):
+        # dorzucić warunki
+        self.stop()
+
     def start(self):
         self.stopped = False
 
@@ -177,7 +185,18 @@ class Car:
         self.slowedDown = True
         self.v_max = max(0.0, v)
 
+    def slow_down_cond(self, v):
+        # dorzucić warunki
+        self.slowDown(v)
+
     def speedUp(self, v):
         self.start()
         self.slowedDown = False
         self.v_max = min(v, self._v_max)
+
+    def get_planned_move(self) :
+        if self.current_road_index + 1 < len(self.path) :
+            source = self.simulation.roads[self.path[self.current_road_index]].start
+            destination = self.simulation.roads[self.path[self.current_road_index + 1]].end
+            return (source, destination)
+        return None

@@ -16,7 +16,8 @@ class Vertex :
     def set_coincidence(self) :
         print(self.roads)
         for road in self.roads :
-            road.set_coincident_roads(self.roads)
+            # road.set_coincident_roads(self.roads)
+            road.set_direction_roads(self.roads)
 
 class Graph :
     def __init__(self) :
@@ -35,6 +36,7 @@ class Graph :
     def set_concidence(self) :
         for vertex in self.vertex_map.values() :
             vertex.set_coincidence()
+        # sys.exit()
 
     def floyd_warshall(self) :
         pass

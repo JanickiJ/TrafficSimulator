@@ -1,13 +1,30 @@
 from scipy.spatial import distance
+from queue import LifoQueue
+import numpy as np
 
 from src.trafficSimulator.generator import max_car_length
-from queue import LifoQueue
 
 # from generator import max_car_length
 
 save_distance = 5.0
 break_distance = 25.0
 stop_distance = 15.0
+
+
+
+def det_3(a,b,c):
+    a_x, a_y = a
+    b_x, b_y = b
+    c_x, c_y = c
+    matrix = np.array([[a_x, a_y, 1],
+                      [b_x, b_y, 1],
+                      [c_x, c_y, 1]])
+    return np.linalg.det(matrix)
+
+
+def detect_collision(source1, destination1, source2, destination2, debug = False) :
+    # if debug: print(source1, destination1, source2, destination2, "\n", det_3(source1, destination1, source2), det_3(source1, destination1, destination2))
+    return det_3(source1, destination1, source2) * det_3(source1, destination1, destination2) < 0 or destination1[0] == destination2[0] or destination1[1] == destination2[1]
 
 
 class Road:
@@ -31,6 +48,9 @@ class Road:
         self.vehicle_array = []
         self.expected_time = self.length / self.max_speed
         self.timeQueue = LifoQueue()
+        self.right_roads = []
+        self.ahead_roads = []
+        self.left_roads = []
         for _ in range(10) :
             self.timeQueue.put(self.expected_time)
         self.do_set_coincident = False
@@ -45,21 +65,76 @@ class Road:
                 old_dt = self.timeQueue.get()
                 self.expected_time = (10.0 * self.expected_time - old_dt + dt) / 10.0
                 self.timeQueue.put(dt)
-
-    def closest_distance(self):
-        min_distance = 100.0
-        if self.do_set_coincident :
-            for road in self.coincident_roads :
-                for car in road.vehicle_array :
-                    if car.current_road_index < len(car.path):
-                        min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length)
+    
+    def get_car_move(self):
+        for car in self.vehicle_array:
+            return car.get_planned_move()
+        return None
+    
+    def get_move_type(self, own_move) :
+        # 0 - right
+        # 1 - ahead
+        # 2 - left
+        for road in self.right_roads :
+            if distance.euclidean(road.start, own_move[1]) < 10.0 :
+                return 0
+        for road in self.ahead_roads :
+            if distance.euclidean(road.start, own_move[1]) < 10.0 :
+                return 1
+        return 2
+    
+    def avoid_collision(self, own_move, road) :
+        other_move = road.get_car_move()
+        if other_move:
+            if detect_collision(own_move[0], own_move[1], other_move[0], other_move[1]):
+                for car in road.vehicle_array:
+                    if car.current_road_index < len(car.path) \
+                        and distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length < 2 * save_distance :
+                            return False
                     break
-        else :
-            for car in self.simulation.cars:
-                if car.current_road_index < len(car.path) and car.path[car.current_road_index] > self.id:
-                    min_distance = min(min_distance, distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length)
-        return min_distance
+        return True
+    
+    def check_right(self, own_move, do_check_with = False) :
+        for road in self.right_roads:
+            if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
+                if not self.avoid_collision(own_move, road): return False
+        return True
 
+    def check_ahead(self, own_move, do_check_with = False):
+        for road in self.ahead_roads:
+            if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
+                if not self.avoid_collision(own_move, road): return False
+        return True
+    
+    def check_left(self, own_move, do_check_with = False):
+        for road in self.left_roads:
+            if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
+                if not self.avoid_collision(own_move, road): return False
+        return True
+                
+    
+    def check_crossroad(self) :
+        # True  -  can move
+        # False -  cannot move
+        own_move = self.get_car_move()
+        if not own_move:
+            return True
+        move_type = self.get_move_type(own_move)
+        if self.has_right_of_way:
+            if move_type == 0:
+                return True
+            if move_type == 1:
+                return self.check_right(own_move)
+            if move_type == 2:
+                return self.check_right(own_move) and self.check_ahead(own_move)
+        else:
+            if move_type == 0:
+                return self.check_right(own_move) and self.check_ahead(own_move) and self.check_left(own_move)
+            if move_type == 1:
+                return self.check_right(own_move, do_check_with=True) and self.check_ahead(own_move) and self.check_left(own_move)
+            if move_type == 2:
+                return self.check_right(own_move, do_check_with=True) and self.check_ahead(own_move, do_check_with=True) and self.check_left(own_move)                   
+            
     def speed_up_vehicles(self, speed):
         for vehicle in self.vehicle_array:
             vehicle.speedUp(speed)
@@ -76,9 +151,9 @@ class Road:
     def move_cars(self, dt=0.01):
         self.vehicle_array = sorted(list(self.vehicles), key=lambda car: car.x, reverse=True)
 
-        if not self.has_right_of_way and not self.has_signal:
+        if not self.has_signal:
             # brak pierszeństwa przejazdu i sygnalizacji świetlnej
-            if self.closest_distance() < 2.0 * save_distance:
+            if not self.check_crossroad():
                 self.stop_cars(break_distance, stop_distance)
             else :
                 self.speed_up_vehicles(self.max_speed)
@@ -102,32 +177,34 @@ class Road:
         if self.has_signal:
             return self.signal.get_current_state(self.signal_index)
         return True
-    
-    def set_coincident_roads(self, roads):
-        self.do_set_coincident = True
-        self.coincident_roads = []
-        self.potential_coincident = []
-        for road in roads:
-            if road.id != self.id:
-                if self.has_right_of_way:
-                    if road.has_right_of_way:
-                        if (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0]) > 0 :
-                            self.coincident_roads.append(road)
-                        elif (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0]) == 0 :
-                            self.potential_coincident.append(road)
-                else :
-                    if road.has_right_of_way or (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0])  > 0 :
-                        self.coincident_roads.append(road)
-                    elif (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0])  == 0 :
-                        self.potential_coincident.append(road)
-        print(f"Road {self.id}", "coincident: ")
-        for road in self.coincident_roads :
-            print(road)
-        print(f"Potential coincident: ")
-        for road in self.potential_coincident :
-            print(road)
-        print()
 
-        
+    def get_angle(self, road) :
+        vector_multiplication = (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0])
+        angle_sin = vector_multiplication / np.sqrt(self.length ** 2 + road.length ** 2)
+        return angle_sin
+
+
+    def set_direction_roads(self, roads) :
+        self.do_set_coincident = True
+        roads = sorted(roads, key = lambda x: self.get_angle(x))
+        index = 0
+        for road in roads :
+            if road.id != self.id:
+                if index == 0 and self.get_angle(road) < 0: 
+                    self.right_roads.append(road)
+                    index += 1
+                elif index <= 1 and self.get_angle(road) <= 0: 
+                    self.ahead_roads.append(road)
+                    index += 1
+                else : 
+                    self.left_roads.append(road)
+        for road in self.right_roads:
+            print("right:", road)
+        for road in self.ahead_roads:
+            print("ahead:", road)
+        for road in self.left_roads:
+            print("left:", road)
+        print("\n\n")
+
     def __str__(self) :
-        return f"Road {self.id}"
+        return f"Road {self.id}, {self.start}, {self.end}, {self.has_right_of_way}"
