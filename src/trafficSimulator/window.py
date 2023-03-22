@@ -241,6 +241,7 @@ class Window:
                 self.draw_curve(road)
             else:
                 self.draw_road(road)
+        self.draw_stop_lines()
 
     def draw_curve(self, curve: Curve):
         roads = curve.as_roads(resolution=10)
@@ -249,11 +250,9 @@ class Window:
 
     def draw_road(self, road: Road):
         def_time = road.length  / road.max_speed
-        traffic = 2.0 * (road.expected_time - def_time) / def_time
-        r = min(255, 128 + 64 * traffic)
-        g = max(0, 172 - 48 * np.abs(traffic - 1.0))
-        b = g#max(0, 172 - 48 * np.abs(traffic - 1.0))
-        # print(r, g, b)
+        traffic = 3.0 * (road.expected_time - def_time) / def_time
+        r, g = min(255, 128 + 64 * traffic), max(0, 172 - 48 * np.abs(traffic - 1.0))
+        b = g
         self.rotated_box(
             road.start,
             (road.length, road_width),
@@ -284,21 +283,23 @@ class Window:
                     cos=road.angle_cos,
                     sin=road.angle_sin
                 )
-
-        if not road.has_right_of_way:
-            a = 4.0 / road.length
-            position = (
-                (1.0 - a) * road.end[0] + a * road.start[0],
-                (1.0 - a) * road.end[1] + a * road.start[1]
-            )
-            self.rotated_box(
-                position,
-                (1, 3.7),
-                cos=road.angle_cos,
-                sin=road.angle_sin,
-                color=(224, 224, 224),
-                centered=True
-            )
+    
+    def draw_stop_lines(self) :
+        for road in self.sim.roads.values():
+            if not road.has_right_of_way:
+                a = 4.0 / road.length
+                position = (
+                    (1.0 - a) * road.end[0] + a * road.start[0],
+                    (1.0 - a) * road.end[1] + a * road.start[1]
+                )
+                self.rotated_box(
+                    position,
+                    (1, 3.7),
+                    cos=road.angle_cos,
+                    sin=road.angle_sin,
+                    color=(224, 224, 224),
+                    centered=True
+                )
 
     def draw_vehicle(self, vehicle: Car, road: Road):
         l, h = vehicle.length, vehicle.width
@@ -314,8 +315,6 @@ class Window:
         y = road_substitute.start[1] + sin * (vehicle_x - 1.0)
 
         color = (0, 255, 255)
-        # if not self.sim.roads[vehicle.path[vehicle.current_road_index]].has_right_of_way : color = (0, 255, 255)
-        # and self.sim.roads[vehicle.path[vehicle.current_road_index]].closest_distance() < 60.0 
 
         self.rotated_box((x, y), (l, h), cos=cos, sin=sin, color=color, centered=True)
 
