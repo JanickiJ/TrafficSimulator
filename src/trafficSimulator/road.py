@@ -22,13 +22,12 @@ def det_3(a,b,c):
     return np.linalg.det(matrix)
 
 
-def detect_collision(source1, destination1, source2, destination2, debug = False) :
-    # if debug: print(source1, destination1, source2, destination2, "\n", det_3(source1, destination1, source2), det_3(source1, destination1, destination2))
+def detect_collision(source1, destination1, source2, destination2) :
     return det_3(source1, destination1, source2) * det_3(source1, destination1, destination2) < 0 or destination1[0] == destination2[0] or destination1[1] == destination2[1]
 
 
 class Road:
-    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True, do_move = False):
+    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True, do_move = False, traffic_queue_size = queue_size):
         self.id = id
         self.start = start
         self.end = end
@@ -51,7 +50,10 @@ class Road:
         self.right_roads = []
         self.ahead_roads = []
         self.left_roads = []
-        for _ in range(queue_size) :
+        if isinstance(traffic_queue_size, int): self.traffic_queue_size = traffic_queue_size
+        elif isinstance(traffic_queue_size, float): self.traffic_queue_size = max(0, int(traffic_queue_size * self.length / 50))
+        else: self.traffic_queue_size = queue_size
+        for _ in range(self.traffic_queue_size) :
             self.timeQueue.put(self.expected_time)
         self.do_set_coincident = False
 
@@ -63,7 +65,7 @@ class Road:
             self.vehicles.remove(vehicle)
             if index > 0 and dt:
                 old_dt = self.timeQueue.get()
-                self.expected_time = (queue_size * self.expected_time - old_dt + dt) / queue_size
+                self.expected_time = (self.traffic_queue_size * self.expected_time - old_dt + dt) / self.traffic_queue_size
                 self.timeQueue.put(dt)
     
     def get_car_move(self):
