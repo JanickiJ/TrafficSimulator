@@ -175,7 +175,8 @@ class Road:
 
     def traffic_signal_state(self):
         if self.has_signal:
-            return self.signal.get_current_state(self.signal_index)
+            # return self.signal.get_current_state(self.signal_index)
+            return self.signal.get_current_state_yellow(self.signal_index)
         return True
 
     def get_angle(self, road) :
