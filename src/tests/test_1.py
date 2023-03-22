@@ -3,6 +3,7 @@ from src.trafficSimulator.simulation import Simulation
 from src.trafficSimulator.traffic_lights import TrafficSignal
 from src.trafficSimulator.window import Window
 
+
 def run_simulation(sim):
     win = Window(sim)
     win.offset = (-150, -110)
@@ -121,7 +122,7 @@ def set_simple_crossroad(sim):
 
 
 def set_traffic_light(sim):
-    return [TrafficSignal([(1, 2), (6, 14)], sim)]
+    return [TrafficSignal([(1, 2), (6, 12)], sim)]
 
 
 def test1():
@@ -386,9 +387,9 @@ def runTests():
     # test2()
     # test3()
     # test4()
-    test5()
+    # test5()
     # test6()
-    # test7()
+    test7()
     # test8()
     # test9()
     # test10()
