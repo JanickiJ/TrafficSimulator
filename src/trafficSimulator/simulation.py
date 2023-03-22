@@ -69,7 +69,7 @@ class Simulation:
             dt = (start - end) * self.speed
             # print(dt)
             for light in self.traffic_lights:
-                light.update(dt)
+                light.update_yellow(dt)
             for road in self.roads.values():
                 road.move_cars(dt=dt)
             if self.generator:

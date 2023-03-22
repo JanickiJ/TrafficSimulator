@@ -334,8 +334,11 @@ class Window:
                         (1.0 - a) * road.end[0] + a * road.start[0],
                         (1.0 - a) * road.end[1] + a * road.start[1]
                     )
-                    if signal.get_current_state(i):
+                    if signal.get_current_state_yellow(i):
                         color = (0, 255, 0)
+                        self.rotated_box(position, (1, 3), cos=road.angle_cos, sin=road.angle_sin, color=color)
+                    elif signal.get_current_state_yellow(i)==None:
+                        color = (255, 255, 0)
                         self.rotated_box(position, (1, 3), cos=road.angle_cos, sin=road.angle_sin, color=color)
                     else:
                         color = (255, 0, 0)
