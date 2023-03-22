@@ -10,6 +10,12 @@ from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 from src.trafficSimulator.graph import Graph
 
+# from measurements import Measurements
+# from car import Car
+# from curve import Curve
+# from road import Road
+# from graph import Graph
+
 
 class Simulation:
     def __init__(self, map_name, speed=2):

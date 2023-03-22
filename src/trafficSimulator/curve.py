@@ -1,6 +1,7 @@
 import math
 
 from src.trafficSimulator.road import Road
+# from road import Road
 
 
 class Curve(Road):
