@@ -7,3 +7,4 @@ src/trafficSimulator/mongo.py
 src/trafficSimulator/test_2.py
 src/trafficSimulator/time_test.py
 src/trafficSimulator/test_3.py
+src/trafficSimulator/test_4.py

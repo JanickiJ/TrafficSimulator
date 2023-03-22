@@ -12,6 +12,10 @@ class Generator :
         self.sum = 0
         self.pathSum = 0
         self.number = 0
+
+        self.paths = paths
+        self.counter = 0
+
         self.typesWithLikelihood = []
         self.pathsWithLikelihood = []
         self.queue = []
@@ -54,6 +58,10 @@ class Generator :
             self.pathSummary[a] = 1
         return a
 
+    def getPath(self) :
+        self.counter = (self.counter + 1) % len(self.paths)
+        return self.paths[self.counter]
+
     def generateCars(self, n) :
         for _ in range(n) :
             self.number += 1
@@ -62,6 +70,7 @@ class Generator :
             carType = self.typesWithLikelihood[a][1]
             carType["id"] = self.number
             carType["path"] = self.pathsWithLikelihood[b][1]
+            # print(carType["path"], self.getPath())
             if self.simulation.roads[carType["path"][0]].length < 2 * max_car_length : continue
             carType["position"] = 12.0 + (self.simulation.roads[carType["path"][0]].length - 2 * max_car_length) * np.random.uniform(0.0, 1.0)
             if self.simulation.can_add_car(carType["path"][0], carType["position"], max_car_length) :
@@ -79,7 +88,7 @@ class Generator :
             else :
                 new_queue.append(car)
         self.queue = new_queue
-        print(simulation_time, self.intensity_function(simulation_time) * dt, "dt =", dt)
+        # print(simulation_time, self.intensity_function(simulation_time) * dt, "dt =", dt)
         if np.random.uniform(0, 1.0) <= self.intensity_function(simulation_time) * dt :
             self.generateCars(1)
 
