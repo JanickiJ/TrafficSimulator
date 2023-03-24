@@ -6,7 +6,7 @@ from src.trafficSimulator.generator import max_car_length
 
 # from generator import max_car_length
 
-save_distance = 5.0
+save_distance = 10.0
 break_distance = 25.0
 stop_distance = 15.0
 
