@@ -50,6 +50,7 @@ class Road:
         self.right_roads = []
         self.ahead_roads = []
         self.left_roads = []
+        self.vertex = []
         if isinstance(traffic_queue_size, int): self.traffic_queue_size = traffic_queue_size
         elif isinstance(traffic_queue_size, float): self.traffic_queue_size = max(0, int(traffic_queue_size * self.length / 50))
         else: self.traffic_queue_size = queue_size
@@ -112,8 +113,7 @@ class Road:
         for road in self.left_roads:
             if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
                 if self.avoid_collision(own_move, road): return False
-        return True
-                
+        return True                
     
     def check_crossroad(self) :
         # True  -  can move
@@ -185,9 +185,18 @@ class Road:
         vector_multiplication = (self.end[0] - self.start[0]) * (road.end[1] - road.start[1]) - (self.end[1] - self.start[1]) * (road.end[0] - road.start[0])
         angle_sin = vector_multiplication / np.sqrt(self.length ** 2 + road.length ** 2)
         return angle_sin
+    
+    def print_concident_roads(self):
+        for road in self.right_roads:
+            print("right:", road)
+        for road in self.ahead_roads:
+            print("ahead:", road)
+        for road in self.left_roads:
+            print("left:", road)
+        print("\n\n")
 
-
-    def set_direction_roads(self, roads) :
+    def set_direction_roads(self, roads, vertex):
+        self.vertex = vertex
         self.do_set_coincident = True
         roads = sorted(roads, key = lambda x: self.get_angle(x))
         index = 0
@@ -201,13 +210,7 @@ class Road:
                     index += 1
                 else : 
                     self.left_roads.append(road)
-        for road in self.right_roads:
-            print("right:", road)
-        for road in self.ahead_roads:
-            print("ahead:", road)
-        for road in self.left_roads:
-            print("left:", road)
-        print("\n\n")
+        # self.print_concident_roads()
 
     def __str__(self) :
         return f"Road {self.id}, {self.start}, {self.end}, {self.has_right_of_way}"

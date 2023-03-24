@@ -1,3 +1,4 @@
+from scipy.spatial import distance
 from time import time
 
 import numpy as np
@@ -11,9 +12,11 @@ from src.trafficSimulator.road import save_distance
 
 class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
+        self.register_path = []
         self.simulation = simulation
         self.set_vehicle_parameters(parameters)
         self.road_times = [time()]
+        self.count = 0
 
         for attr, val in conf.items():
             setattr(self, attr, val)
@@ -60,10 +63,11 @@ class Car:
         self.add_to_road()
     
     def add_to_road(self):
-        if self.current_road_index < len(self.path):
+        if self.current_road_index < len(self.path) and self.path[0] != False:
             current_road = self.path[self.current_road_index]
             self.simulation.roads[current_road].add_vehicle(self)
             self.slowDown(self.simulation.roads[current_road].max_speed)
+            # print(self.register_path)
         else:
             self.finish()
 
@@ -87,8 +91,17 @@ class Car:
         self.b_max = parameters[
             "b_max"]  # maksymalne opóźnienie przy hamowaniu https://motofakty.pl/droga-hamowania-to-nie-wszystko-ile-miejsca-potrzeba-by-zatrzymac-auto/ar/c4-16232753
 
-        self.path = parameters["path"]
-        self.current_road_index = parameters["road_index"]
+        if isinstance(parameters["path"], tuple) and len(parameters["path"]) > 2:
+            start_road = parameters["path"][0]
+            self.end_point = parameters["path"][1]
+            next_hop = self.simulation.roads[start_road].vertex.get_next_hop(self.end_point)
+            self.dynamic = True
+            self.path = [start_road, next_hop]
+            self.current_road_index = 0
+        else:
+            self.dynamic = False
+            self.path = parameters["path"]
+            self.current_road_index = parameters["road_index"]
 
         self.x = parameters["position"]
         self.v = 0
@@ -97,17 +110,27 @@ class Car:
         self.slowedDown = False
         self.finished = False
         self.counter = 0
+        self.register_path.append(self.path[0])
 
     def change_road(self, current_road):
         potential_leader = self.detect_potential_leader()
         if potential_leader:
-            if potential_leader.x < 2 * self.length: 
+            if potential_leader.x < self.length + save_distance: 
                 self.stop()
                 return
         self.x -= self.simulation.roads[current_road].length
+        self.x = max(-0.25 * self.length, self.x)
         self.road_times.append(time())
-        self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2], index = self.current_road_index)
-        self.current_road_index += 1
+        self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2], index = self.count)
+        if self.dynamic:
+            next_hop = None
+            if self.path[1] != False:
+                next_hop = self.simulation.roads[self.path[1]].vertex.get_next_hop(self.end_point)
+            self.register_path.append(next_hop)
+            self.path = [self.path[1], next_hop]
+        else:
+            self.current_road_index += 1
+        self.count += 1
         self.add_to_road()
 
     def get_position(self):
@@ -117,7 +140,7 @@ class Car:
                 (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
 
     def detect_potential_leader(self):
-        if self.current_road_index + 1 < len(self.path):
+        if self.current_road_index + 1 < len(self.path) and self.path[self.current_road_index + 1] != False:
             next_road_idx = self.path[self.current_road_index + 1]
             next_road = self.simulation.roads[next_road_idx]
             if len(next_road.vehicle_array) > 0:
@@ -164,13 +187,14 @@ class Car:
                 self.a = -self.b_max * self.v / self.v_max
 
         current_road = self.path[self.current_road_index]
-        if self.x > self.simulation.roads[current_road].length:
-            self.x = self.simulation.roads[current_road].length
-        if self.x > self.simulation.roads[current_road].length - save_distance / 2.0:
+        if self.x > self.simulation.roads[current_road].length - 0.75 * self.length:
+            self.x = self.simulation.roads[current_road].length - 0.75 * self.length
+        if self.x >= self.simulation.roads[current_road].length - 0.75 * self.length:
             self.change_road(current_road)
 
     def finish(self):
         self.finished = True
+        print(self.register_path)
 
     def stop(self):
         if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
@@ -197,7 +221,7 @@ class Car:
         self.v_max = min(v, self._v_max)
 
     def get_planned_move(self) :
-        if self.current_road_index + 1 < len(self.path) :
+        if self.current_road_index + 1 < len(self.path) and self.path[self.current_road_index] != False and self.path[self.current_road_index + 1] != False:
             source = self.simulation.roads[self.path[self.current_road_index]].start
             destination = self.simulation.roads[self.path[self.current_road_index + 1]].end
             return (source, destination)

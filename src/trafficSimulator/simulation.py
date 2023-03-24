@@ -26,6 +26,7 @@ class Simulation:
         self.speed = speed
         self.generator = None
         self.count = 0
+        self.distance_vector_initiate = False
         self.start_time = time.time()
         self.previous = time.time()
         self.measurement_module = Measurements()
@@ -74,6 +75,8 @@ class Simulation:
                 road.move_cars(dt=dt)
             if self.generator:
                 self.generator.generate(time.time() - self.start_time, dt)
+            if self.distance_vector_initiated:
+                self.graph.update()
         self.previous = time.time()
         if self.finished():
             self.measurement_module.save_measurements(self)
@@ -81,7 +84,9 @@ class Simulation:
             sys.exit()
 
     def can_add_car(self, road, position, length):
+        # print("Road:", road)
         for car in self.roads[road].vehicles:
+            # print(car.x ,"=?=",position, np.abs(car.x - position) < 2.0 * (length + car.length))
             if np.abs(car.x - position) < 2.0 * (length + car.length):
                 return False
         self.count += 1
@@ -97,4 +102,10 @@ class Simulation:
     
     def set_coincidence(self):
         self.graph.set_concidence()
+        self.graph.print()
+
+    def init_distance_vector(self):
+        self.distance_vector_initiated = True
+        self.graph.floyd_warshall()
+        
 
