@@ -1,16 +1,17 @@
 import math
 
+from src.trafficSimulator.parameters import curve_number
 from src.trafficSimulator.road import Road
 # from road import Road
-
+# from parameters import curve_number
 
 class Curve(Road):
     def __init__(self, id, start, end, sim, control_point, speed_limit=None, right_of_way=None):
         super().__init__(id, start, end, sim, max_speed=speed_limit, right_of_way=right_of_way)
         self.control_point = control_point
-        self.bezier_points = self.get_curve_points(10)
+        self.bezier_points = self.get_curve_points(curve_number)
         self.length = self.distance_between_points(self.bezier_points)
-        self.roads_substitute = self.as_roads(10)
+        self.roads_substitute = self.as_roads(curve_number)
 
     @staticmethod
     def distance_between_points(points):

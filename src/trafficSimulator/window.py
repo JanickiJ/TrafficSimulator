@@ -2,15 +2,25 @@ import numpy as np
 import pygame
 from pygame import gfxdraw
 
+from src.trafficSimulator.parameters import road_width
+from src.trafficSimulator.parameters import bg_color, fps, height, width, zoom
+from src.trafficSimulator.parameters import rect_color, arrow_color, axes_color, grid_color, stop_line_color, major_grid_color, minor_grid_color
+from src.trafficSimulator.parameters import grid_unit, major_grid_unit, minor_grid_unit
+from src.trafficSimulator.parameters import traffic_color_coefficient, traffic_color_coefficient_2, red_basic, green_basic
+from src.trafficSimulator.parameters import stop_line_size, stop_line_distance
 from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 
+# from parameters import road_width
+# from parameters import bg_color, fps, height, width, zoom
+# from parameters import rect_color, arrow_color, axes_color, grid_color, stop_line_color, major_grid_color, minor_grid_color
+# from parameters import grid_unit, major_grid_unit, minor_grid_unit
+# from parameters import traffic_color_coefficient, traffic_color_coefficient_2, red_basic, green_basic
+# from parameters import stop_line_size, stop_line_distance
 # from car import Car
 # from curve import Curve
 # from road import Road
-
-road_width = 4.0
 
 class Window:
     def __init__(self, sim, config={}):
@@ -21,12 +31,12 @@ class Window:
 
     def set_default_config(self):
         """Set default configuration"""
-        self.width = 1400
-        self.height = 900
-        self.bg_color = (229, 255, 204)
+        self.width = width
+        self.height = height
+        self.bg_color = bg_color
 
-        self.fps = 60
-        self.zoom = 5
+        self.fps = fps
+        self.zoom = zoom
         self.offset = (0, 0)
 
         self.mouse_last = (0, 0)
@@ -174,10 +184,10 @@ class Window:
 
         self.polygon(vertices, color, filled=filled)
 
-    def rotated_rect(self, pos, size, angle=None, cos=None, sin=None, centered=True, color=(0, 0, 255)):
+    def rotated_rect(self, pos, size, angle=None, cos=None, sin=None, centered=True, color=rect_color):
         self.rotated_box(pos, size, angle=angle, cos=cos, sin=sin, centered=centered, color=color, filled=False)
 
-    def arrow(self, pos, size, angle=None, cos=None, sin=None, color=(150, 150, 190)):
+    def arrow(self, pos, size, angle=None, cos=None, sin=None, color=arrow_color):
         if angle:
             cos, sin = np.cos(angle), np.sin(angle)
 
@@ -199,7 +209,7 @@ class Window:
             centered=False
         )
 
-    def draw_axes(self, color=(100, 100, 100)):
+    def draw_axes(self, color=axes_color):
         x_start, y_start = self.inverse_convert(0, 0)
         x_end, y_end = self.inverse_convert(self.width, self.height)
         self.line(
@@ -213,7 +223,7 @@ class Window:
             color
         )
 
-    def draw_grid(self, unit=50, color=(150, 150, 150)):
+    def draw_grid(self, unit=grid_unit, color=grid_color):
         x_start, y_start = self.inverse_convert(0, 0)
         x_end, y_end = self.inverse_convert(self.width, self.height)
 
@@ -250,8 +260,8 @@ class Window:
 
     def draw_road(self, road: Road):
         def_time = road.length  / road.max_speed
-        traffic = 3.0 * (road.expected_time - def_time) / def_time
-        r, g = min(255, 128 + 64 * traffic), max(0, 172 - 48 * np.abs(traffic - 1.0))
+        traffic = traffic_color_coefficient * (road.expected_time - def_time) / def_time
+        r, g = min(255, red_basic + traffic_color_coefficient_2 * traffic), max(0, green_basic - traffic_color_coefficient_2 * np.abs(traffic - 1.0))
         b = g
         self.rotated_box(
             road.start,
@@ -287,17 +297,17 @@ class Window:
     def draw_stop_lines(self) :
         for road in self.sim.roads.values():
             if not road.has_right_of_way:
-                a = 4.0 / road.length
+                a = stop_line_distance / road.length
                 position = (
                     (1.0 - a) * road.end[0] + a * road.start[0],
                     (1.0 - a) * road.end[1] + a * road.start[1]
                 )
                 self.rotated_box(
                     position,
-                    (1, 3.7),
+                    stop_line_size,
                     cos=road.angle_cos,
                     sin=road.angle_sin,
-                    color=(224, 224, 224),
+                    color=stop_line_color,
                     centered=True
                 )
 
@@ -355,8 +365,8 @@ class Window:
         self.background(*self.bg_color)
 
         # Major and minor grid and axes
-        self.draw_grid(10, (220, 220, 220))
-        self.draw_grid(100, (200, 200, 200))
+        self.draw_grid(major_grid_unit, major_grid_color)
+        self.draw_grid(minor_grid_unit, minor_grid_color)
         self.draw_axes()
 
         self.draw_roads()

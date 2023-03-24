@@ -1,7 +1,6 @@
 from src.statistics.mongo import Mongo
 
-SAVE_RESULTS_IN_DB = False
-
+from src.trafficSimulator.parameters import SAVE_RESULTS_IN_DB
 
 class Measurements:
     def __init__(self):

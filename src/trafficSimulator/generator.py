@@ -1,7 +1,7 @@
 import numpy as np
 
-max_car_length = 12.5
-max_vehicle_width = 3.0
+from src.trafficSimulator.parameters import max_car_length
+# from parameters import max_car_length
 
 def id(a) :
     return a

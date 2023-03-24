@@ -5,12 +5,14 @@ import numpy as np
 import pygame
 
 from src.statistics.measurements import Measurements
+from src.trafficSimulator.parameters import default_speed_limit, simulation_debug
 from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 from src.trafficSimulator.graph import Graph
 
 # from measurements import Measurements
+# from parameters import default_speed_limit, simulation_debug
 # from car import Car
 # from curve import Curve
 # from road import Road
@@ -39,7 +41,7 @@ class Simulation:
         for vehicle in vehicles:
             self.create_car(vehicle[0], vehicle[1])
 
-    def create_road(self, start, end, id, speed_limit=13.83, right_of_way=True, control_point=None, do_move = False):
+    def create_road(self, start, end, id, speed_limit=default_speed_limit, right_of_way=True, control_point=None, do_move = False):
         if control_point:
             road = Curve(id, start, end, self, control_point, speed_limit=speed_limit, right_of_way=right_of_way)
         else:
@@ -59,16 +61,15 @@ class Simulation:
     def set_lights(self, traffic_lights):
         self.traffic_lights = traffic_lights
 
-    def run(self, steps):
+    def run(self, steps, debug = simulation_debug):
         start = time.time()
         for i in range(steps):
             end = start
             if i == 0 : end = self.previous
             start = time.time()
-            # print(start, end)
-            # dt = max(0.1, (start - end) * self.speed)
+            if debug: print(start, end)
             dt = (start - end) * self.speed
-            # print(dt)
+            if debug: print(dt)
             for light in self.traffic_lights:
                 light.update_yellow(dt)
             for road in self.roads.values():
@@ -83,10 +84,10 @@ class Simulation:
             pygame.quit()
             sys.exit()
 
-    def can_add_car(self, road, position, length):
-        # print("Road:", road)
+    def can_add_car(self, road, position, length, debug = simulation_debug):
+        if debug: print("Road:", road)
         for car in self.roads[road].vehicles:
-            # print(car.x ,"=?=",position, np.abs(car.x - position) < 2.0 * (length + car.length))
+            if debug: print(car.x ,"=?=",position, np.abs(car.x - position) < 2.0 * (length + car.length))
             if np.abs(car.x - position) < 2.0 * (length + car.length):
                 return False
         self.count += 1
@@ -100,9 +101,9 @@ class Simulation:
                 return False
         return True
     
-    def set_coincidence(self):
+    def set_coincidence(self, debug = simulation_debug):
         self.graph.set_concidence()
-        self.graph.print()
+        if debug: self.graph.print()
 
     def init_distance_vector(self):
         self.distance_vector_initiated = True

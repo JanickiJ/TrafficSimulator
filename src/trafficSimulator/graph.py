@@ -1,4 +1,5 @@
-inf = 1000000000
+from src.trafficSimulator.parameters import inf, debug_graph
+# from parameters import inf, debug_graph
 
 class Vertex :
     def __init__(self, position) : 
@@ -58,7 +59,7 @@ class Vertex :
                 distance2 = self.out_road_map[vertex].expected_time
                 self.update_vertex_distance(Vertex(v), distance1 + distance2, vertex)
 
-    def get_next_hop(self, point, debug = False):
+    def get_next_hop(self, point, debug = debug_graph):
         if self.x == point[0] and self.y == point[1]:
             return False
         if debug:
@@ -100,14 +101,14 @@ class Graph :
     def get_predecesor(self, v_1, v_2):
         return v_1.get_predecesor(v_2)
 
-    def print_distance_vectors(self, debug = True):
+    def print_distance_vectors(self, debug = debug_graph):
         if debug: print("=============================Distance vector=============================")
         for position, vertex in self.vertex_map.items():
             if debug: print(position, vertex)
             vertex.print_distance_vector()
             if debug: print()
 
-    def floyd_warshall(self, debug = True) :
+    def floyd_warshall(self, debug = debug_graph) :
         # Floyd Warshall table initialization
         for vertex_1 in self.vertex_map.values():
             for vertex_2 in self.vertex_map.values():

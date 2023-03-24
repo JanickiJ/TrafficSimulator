@@ -2,15 +2,8 @@ from scipy.spatial import distance
 from queue import LifoQueue
 import numpy as np
 
-from src.trafficSimulator.generator import max_car_length
-
-# from generator import max_car_length
-
-save_distance = 10.0
-break_distance = 25.0
-stop_distance = 15.0
-
-queue_size = 5
+from src.trafficSimulator.parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+# from parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
 
 def det_3(a,b,c):
     a_x, a_y = a
@@ -210,7 +203,6 @@ class Road:
                     index += 1
                 else : 
                     self.left_roads.append(road)
-        # self.print_concident_roads()
 
     def __str__(self) :
         return f"Road {self.id}, {self.start}, {self.end}, {self.has_right_of_way}"

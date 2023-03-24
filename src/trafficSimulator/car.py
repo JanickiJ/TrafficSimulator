@@ -4,11 +4,8 @@ from time import time
 import numpy as np
 import pygame
 
-from src.trafficSimulator.generator import max_car_length, max_vehicle_width
-from src.trafficSimulator.road import save_distance
-# from generator import max_car_length, max_vehicle_width
-# from road import save_distance, stop_distance
-
+from src.trafficSimulator.parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
+# from parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
 
 class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
@@ -22,21 +19,7 @@ class Car:
             setattr(self, attr, val)
 
     def set_vehicle_parameters(self, parameters):
-        default = {
-            "id": 0,
-            "length": 4.6,
-            "width": 2.0,
-            "delta_s0": 1.0,
-            "break_reaction_time": 0.3,
-            "avarage_reaction_time": 0.85,
-            "stand_dev_reaction_time": 0.15,
-            "maximum_speed": 16.6,
-            "a_max": 3.3,
-            "b_max": 6.25,
-            "road_index": 0,
-            "path": [],
-            "position": 0
-        }
+        default = default_car_parameters
 
         if parameters == None:
             parameters = default
@@ -62,12 +45,12 @@ class Car:
 
         self.add_to_road()
     
-    def add_to_road(self):
+    def add_to_road(self, debug = debug_car):
         if self.current_road_index < len(self.path) and self.path[0] != False:
             current_road = self.path[self.current_road_index]
             self.simulation.roads[current_road].add_vehicle(self)
             self.slowDown(self.simulation.roads[current_road].max_speed)
-            # print(self.register_path)
+            if debug: print(self.register_path)
         else:
             self.finish()
 
@@ -192,9 +175,9 @@ class Car:
         if self.x >= self.simulation.roads[current_road].length - 0.75 * self.length:
             self.change_road(current_road)
 
-    def finish(self):
+    def finish(self, debug = debug_car):
         self.finished = True
-        print(self.register_path)
+        if debug: print(self.register_path)
 
     def stop(self):
         if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :

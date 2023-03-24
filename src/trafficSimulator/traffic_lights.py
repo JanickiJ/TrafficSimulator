@@ -1,14 +1,17 @@
-traffic_light_T = 30.0
+from src.trafficSimulator.parameters import default_traffic_light_T, default_traffic_time_steps
+from src.trafficSimulator.parameters import default_traffic_state, default_traffic_state_yellow
+# from parameters import default_traffic_light_T, default_traffic_time_steps
+# from parameters import default_traffic_state, default_traffic_state_yellow
 
 class TrafficSignal:
-    def __init__(self, roads, sim, time_steps = [16.0, 18.0, 20.0, 36.0, 38.0, 40.0]) :
+    def __init__(self, roads, sim, light_T = default_traffic_light_T, time_steps = default_traffic_time_steps) :
         self.roads = roads
-        self.state = [(False, True), (True, False)]
-        self.state_yellow = [(True, None, False, False, False, None), (False, False, None, True, None, False)]
+        self.state = default_traffic_state
+        self.state_yellow = default_traffic_state_yellow
         self.time_steps = time_steps
         self.state_index = 0
         self.stop_distance = 10.0
-        self.T = 40.0
+        self.T = light_T
         self.t = 0
         self.simulation = sim
         self.init_properties()
