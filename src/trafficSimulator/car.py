@@ -9,6 +9,7 @@ from src.trafficSimulator.parameters import max_car_length, max_vehicle_width, s
 
 class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
+        """Class representing car"""
         self.register_path = []
         self.simulation = simulation
         self.set_vehicle_parameters(parameters)
@@ -19,6 +20,7 @@ class Car:
             setattr(self, attr, val)
 
     def set_vehicle_parameters(self, parameters):
+        """Setting default vehicle parameters"""
         default = default_car_parameters
 
         if parameters == None:
@@ -46,6 +48,7 @@ class Car:
         self.add_to_road()
     
     def add_to_road(self, debug = debug_car):
+        """Metohd responsible for registring vehicle as present on a certain road"""
         if self.current_road_index < len(self.path) and self.path[0] != False:
             current_road = self.path[self.current_road_index]
             self.simulation.roads[current_road].add_vehicle(self)
@@ -55,6 +58,7 @@ class Car:
             self.finish()
 
     def set_parameters(self, parameters):
+        """Setting vehicle parameters"""
         self.id = parameters["id"]
         self.length = min(max_car_length, parameters["length"])
         self.width = min(max_vehicle_width, parameters["width"])
@@ -95,42 +99,66 @@ class Car:
         self.counter = 0
         self.register_path.append(self.path[0])
 
-    def change_road(self, current_road):
-        potential_leader = self.detect_potential_leader()
-        if potential_leader:
-            if potential_leader.x < self.length + save_distance: 
-                self.stop()
-                return
+    def find_next_hop(self):
+        """Finding next road to choose"""
+        """It's always done one step forward"""
+        next_hop = None
+        if self.path[1] != False:
+            next_hop = self.simulation.roads[self.path[1]].vertex.get_next_hop(self.end_point)
+        self.register_path.append(next_hop)
+        self.path = [self.path[1], next_hop]
+
+    def actualize_x(self, current_road):
+        """Actualize vehicle position on new road"""
         self.x -= self.simulation.roads[current_road].length
         self.x = max(-0.25 * self.length, self.x)
-        self.road_times.append(time())
+
+    def remove_from_road(self, current_road):
+        """Passing information about removing vehicle from current road"""
+        """with information about time of passing this particular road"""
         self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2], index = self.count)
+
+    def change_road(self, current_road):
+        """Registering road change (time fo trevel, next_hop)"""
+        if self.handle_potential_leader():
+            return
+        self.actualize_x(current_road)
+        self.road_times.append(time())
+        self.remove_from_road(current_road)
         if self.dynamic:
-            next_hop = None
-            if self.path[1] != False:
-                next_hop = self.simulation.roads[self.path[1]].vertex.get_next_hop(self.end_point)
-            self.register_path.append(next_hop)
-            self.path = [self.path[1], next_hop]
+            self.find_next_hop()
         else:
             self.current_road_index += 1
         self.count += 1
         self.add_to_road()
 
     def get_position(self):
+        """Get current position of the vehicle on the map (cartesian plain)"""
         r = self.path[self.current_road_index]
         road = self.simulation.roads[r]
         return ((road.end[0] * self.x + road.start[0] * (road.length - self.x)) / road.length,
                 (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
 
     def detect_potential_leader(self):
+        """Detecting potential collision before choosing new road"""
         if self.current_road_index + 1 < len(self.path) and self.path[self.current_road_index + 1] != False:
             next_road_idx = self.path[self.current_road_index + 1]
             next_road = self.simulation.roads[next_road_idx]
             if len(next_road.vehicle_array) > 0:
                 return next_road.vehicle_array[-1]
         return None
+    
+    def handle_potential_leader(self):
+        """Handle situation when potential leader was detected"""
+        potential_leader = self.detect_potential_leader()
+        if potential_leader:
+            if potential_leader.x < self.length + save_distance: 
+                self.stop()
+                return True
+        return False
 
     def move(self, dt=1.0, leader=None):
+        """Actualize current vehicle position, speed and acceleration"""
         if self.finished:
             return
         dx = max(0.0, self.v * dt + self.a * dt * dt / 2)
@@ -176,10 +204,12 @@ class Car:
             self.change_road(current_road)
 
     def finish(self, debug = debug_car):
+        """Signalize travel end for the vehicle"""
         self.finished = True
         if debug: print(self.register_path)
 
     def stop(self):
+        """Stop the car"""
         if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
             self.stopped = True
 
@@ -188,9 +218,11 @@ class Car:
         self.stop()
 
     def start(self):
+        """Start the car"""
         self.stopped = False
 
     def slowDown(self, v):
+        """Slow down to given speed"""
         self.slowedDown = True
         self.v_max = max(0.0, v)
 
@@ -199,11 +231,13 @@ class Car:
         self.slowDown(v)
 
     def speedUp(self, v):
+        """Speeding up to given speed"""
         self.start()
         self.slowedDown = False
         self.v_max = min(v, self._v_max)
 
     def get_planned_move(self) :
+        """Get planned move (information where the vehicle will go after the nearest crossroad)"""
         if self.current_road_index + 1 < len(self.path) and self.path[self.current_road_index] != False and self.path[self.current_road_index + 1] != False:
             source = self.simulation.roads[self.path[self.current_road_index]].start
             destination = self.simulation.roads[self.path[self.current_road_index + 1]].end

@@ -161,7 +161,7 @@ def test2():
         (1, [2]),
         (1, [10]),
     ], simulation=sim)
-    gen.generateCars(5)
+    gen.generate_cars(5)
     run_simulation(sim)
 
 
