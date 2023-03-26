@@ -5,10 +5,10 @@ from src.trafficSimulator.parameters import stop_distance
 # from parameters import default_traffic_state, default_traffic_state_yellow
 
 class TrafficSignal:
-    def __init__(self, roads, sim, light_T = default_traffic_light_T, time_steps = default_traffic_time_steps) :
+    def __init__(self, roads, sim, light_T = default_traffic_light_T, time_steps = default_traffic_time_steps, yellow_traffic_state = default_traffic_state_yellow) :
         self.roads = roads
         self.state = default_traffic_state
-        self.state_yellow = default_traffic_state_yellow
+        self.state_yellow = yellow_traffic_state
         self.time_steps = time_steps
         self.state_index = 0
         self.stop_distance = stop_distance

@@ -79,10 +79,9 @@ class Simulation:
         if self.generator:
             self.generator.generate(time.time() - self.start_time, dt)
 
-    def upadate_graph(self, dt):
+    def upadate_graph(self, _):
         if self.distance_vector_initiated:
             self.graph.update()
-
 
     def run(self, steps, debug = simulation_debug):
         """Run certain number of steps"""
