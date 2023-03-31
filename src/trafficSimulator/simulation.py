@@ -80,7 +80,7 @@ class Simulation:
             self.generator.generate(time.time() - self.start_time, dt)
 
     def upadate_graph(self, _):
-        if self.distance_vector_initiated:
+        if self.distance_vector_initiate:
             self.graph.update()
 
     def run(self, steps, debug = simulation_debug):
