@@ -89,13 +89,14 @@ class Road:
     def avoid_collision(self, own_move, road):
         """Inform cars about potential collision and enforce proper reaction"""
         other_move = road.get_car_move()
-        if other_move:
-            if detect_collision(own_move[0], own_move[1], other_move[0], other_move[1]):
-                for car in road.vehicle_array:
-                    if car.current_road_index < len(car.path) \
-                        and distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length < 2 * save_distance:
-                            return True
-                    break
+        if self.id < road.id:
+            if other_move:
+                if detect_collision(own_move[0], own_move[1], other_move[0], other_move[1]):
+                    for car in road.vehicle_array:
+                        if car.current_road_index < len(car.path) \
+                            and distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length < 2 * save_distance:
+                                return True
+                        break
         return False
     
     def check_right(self, own_move, do_check_with = False):
