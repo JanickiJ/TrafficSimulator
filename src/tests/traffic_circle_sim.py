@@ -5,15 +5,15 @@ from src.trafficSimulator.window import Window
 
 def set_roads(sim):
     roads = [
-        ((300, 100), (200, 100), 1, 20.00, True, True),
-        ((0, 100), (120, 100), 2, 20.00, True, True),
-        ((120, 100), (0, 100), 3, 20.00, True, True),
-        ((200, 100), (300, 100), 4, 20.00, True, True),
+        ((800, 100), (200, 100), 1, 20.00, True, True),
+        ((-500, 100), (120, 100), 2, 20.00, True, True),
+        ((120, 100), (-500, 100), 3, 20.00, True, True),
+        ((200, 100), (800, 100), 4, 20.00, True, True),
 
-        ((160, 140), (160, 200), 5, 20.00, True, True),
-        ((160, 200), (160, 140), 6, 20.00, True, True),
-        ((160, 60), (160, 0), 7, 20.00, True, True),
-        ((160, 0), (160, 60), 8, 20.00, True, True),
+        ((160, 140), (160, 700), 5, 20.00, True, True),
+        ((160, 700), (160, 140), 6, 20.00, True, True),
+        ((160, 60), (160, -500), 7, 20.00, True, True),
+        ((160, -500), (160, 60), 8, 20.00, True, True),
     ]
 
     curves = [
@@ -36,7 +36,7 @@ def set_roads(sim):
 
 
 def test():
-    sim = Simulation("TRAFFIC_CIRCLE_SIM")
+    sim = Simulation("TRAFFIC_CIRCLE_SIM", speed=2)
     set_roads(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
@@ -47,22 +47,22 @@ def test():
         (1, {"avarage_reaction_time": 0.25, "maximum_speed": 12.0, "length": 1.6, "a_max": 2.0, "width": 0.8}),
         (1, {"avarage_reaction_time": 0.25, "maximum_speed": 25.0, "length": 1.75, "a_max": 2.5, "width": 1.2}),
     ], paths=[
-        (1, [1, 11, 12, 9,10, 4]),
+        # (1, [1, 11, 12, 9,10, 4]),
         (1, [1, 11, 12, 9, 7]),
         (1, [1, 11, 12, 3]),
         (1, [1, 11, 5]),
 
-        (1, [2, 9, 10, 11, 12, 3]),
+        # (1, [2, 9, 10, 11, 12, 3]),
         (1, [2, 9, 10, 11, 5]),
         (1, [2, 9, 10, 4]),
         (1, [2, 9, 7]),
 
-        (1, [8, 10, 11, 12, 9, 7]),
+        # (1, [8, 10, 11, 12, 9, 7]),
         (1, [8, 10, 11, 12, 3]),
         (1, [8, 10, 11, 5]),
         (1, [8, 10, 4]),
 
-        (1, [6, 12, 9, 10, 11, 5]),
+        # (1, [6, 12, 9, 10, 11, 5]),
         (1, [6, 12, 9, 10, 4]),
         (1, [6, 12, 9, 7]),
         (1, [6, 12, 3]),
@@ -74,7 +74,7 @@ def test():
 
 
 def intensityFunction(t):
-    return max(0.0, (200.0 - t) / 20.0)
+    return max(0.0, (100.0 - t) / 5.0)
 
 
 def run_simulation(sim):

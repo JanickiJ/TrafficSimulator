@@ -1,10 +1,11 @@
-from scipy.spatial import distance
 from time import time
 
 import numpy as np
-import pygame
 
-from src.trafficSimulator.parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
+from src.trafficSimulator.parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, \
+    default_car_parameters, debug_car
+
+
 # from parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
 
 class Car:
@@ -46,8 +47,8 @@ class Car:
         self.set_parameters(parameters)
 
         self.add_to_road()
-    
-    def add_to_road(self, debug = debug_car):
+
+    def add_to_road(self, debug=debug_car):
         """Metohd responsible for registring vehicle as present on a certain road"""
         if self.current_road_index < len(self.path) and self.path[0] != False:
             current_road = self.path[self.current_road_index]
@@ -116,7 +117,8 @@ class Car:
     def remove_from_road(self, current_road):
         """Passing information about removing vehicle from current road"""
         """with information about time of passing this particular road"""
-        self.simulation.roads[current_road].remove_vehicle(self, dt = self.road_times[-1] - self.road_times[-2], index = self.count)
+        self.simulation.roads[current_road].remove_vehicle(self, dt=self.road_times[-1] - self.road_times[-2],
+                                                           index=self.count)
 
     def change_road(self, current_road):
         """Registering road change (time fo trevel, next_hop)"""
@@ -147,12 +149,12 @@ class Car:
             if len(next_road.vehicle_array) > 0:
                 return next_road.vehicle_array[-1]
         return None
-    
+
     def handle_potential_leader(self):
         """Handle situation when potential leader was detected"""
         potential_leader = self.detect_potential_leader()
         if potential_leader:
-            if potential_leader.x < self.length + save_distance: 
+            if potential_leader.x < self.length + save_distance:
                 self.stop()
                 return True
         return False
@@ -164,7 +166,6 @@ class Car:
         dx = max(0.0, self.v * dt + self.a * dt * dt / 2)
         self.x += dx
         self.v = max(0.0, self.v + self.a * dt)
-
         follow_correction = 0
 
         potential_leader = self.detect_potential_leader()
@@ -177,7 +178,8 @@ class Car:
         elif potential_leader:
             delta_x = potential_leader.x + self.simulation.roads[
                 self.path[self.current_road_index]].length - self.x - potential_leader.length
-            if delta_x < save_distance + self.length : delta_x = self.simulation.roads[self.path[self.current_road_index]].length - self.x - stop_distance
+            if delta_x < save_distance + self.length: delta_x = self.simulation.roads[self.path[
+                self.current_road_index]].length - self.x - stop_distance
             delta_v = self.v - potential_leader.v
             follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
@@ -203,14 +205,14 @@ class Car:
         if self.x >= self.simulation.roads[current_road].length - 0.75 * self.length:
             self.change_road(current_road)
 
-    def finish(self, debug = debug_car):
+    def finish(self, debug=debug_car):
         """Signalize travel end for the vehicle"""
         self.finished = True
         if debug: print(self.register_path)
 
     def stop(self):
         """Stop the car"""
-        if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
+        if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0:
             self.stopped = True
 
     def stop_cond(self):
@@ -236,9 +238,10 @@ class Car:
         self.slowedDown = False
         self.v_max = min(v, self._v_max)
 
-    def get_planned_move(self) :
+    def get_planned_move(self):
         """Get planned move (information where the vehicle will go after the nearest crossroad)"""
-        if self.current_road_index + 1 < len(self.path) and self.path[self.current_road_index] != False and self.path[self.current_road_index + 1] != False:
+        if self.current_road_index + 1 < len(self.path) and self.path[self.current_road_index] != False and self.path[
+            self.current_road_index + 1] != False:
             source = self.simulation.roads[self.path[self.current_road_index]].start
             destination = self.simulation.roads[self.path[self.current_road_index + 1]].end
             return (source, destination)

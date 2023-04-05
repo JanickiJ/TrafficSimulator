@@ -11,20 +11,20 @@ def run_simulation(sim):
 
 
 def intensityFunction(t):
-    return max(0.0, (200.0 - t) / 100.0)
+    return max(0.0, (100.0 - t) / 5.0)
 
 
 def set_roads(sim):
     data = [
-        ((300, 100), (160, 100), 1, 20.00, True, True),
-        ((0, 100), (160, 100), 2, 20.00, True, True),
-        ((160, 100), (0, 100), 3, 20.00, True, True),
-        ((160, 100), (300, 100), 4, 20.00, True, True),
+        ((800, 100), (160, 100), 1, 20.00, True, True),
+        ((-500, 100), (160, 100), 2, 20.00, True, True),
+        ((160, 100), (-500, 100), 3, 20.00, True, True),
+        ((160, 100), (800, 100), 4, 20.00, True, True),
 
-        ((160, 100), (160, 200), 5, 20.00, True, True),
-        ((160, 200), (160, 100), 6, 20.00, True, True),
-        ((160, 100), (160, 0), 7, 20.00, True, True),
-        ((160, 0), (160, 100), 8, 20.00, True, True),
+        ((160, 100), (160, 700), 5, 20.00, True, True),
+        ((160, 700), (160, 100), 6, 20.00, True, True),
+        ((160, 100), (160, -500), 7, 20.00, True, True),
+        ((160, -500), (160, 100), 8, 20.00, True, True),
     ]
 
     def road_with_speed_limit_mapper(x): return {"start": x[0], "end": x[1], "id": x[2], "speed_limit": x[3],
@@ -33,11 +33,13 @@ def set_roads(sim):
     sim.set_roads(list(map(road_with_speed_limit_mapper, data)), True)
     sim.set_lights(set_traffic_light(sim))
 
+
 def set_traffic_light(sim):
-    return [TrafficSignal([(1, 2), (6,8)], sim)]
+    return [TrafficSignal([(1, 2), (6, 8)], sim)]
+
 
 def test():
-    sim = Simulation("CROSSING_LIGHTS_SIM")
+    sim = Simulation("CROSSING_LIGHTS_SIM", speed=2)
     set_roads(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
