@@ -2,8 +2,8 @@ from scipy.spatial import distance
 from queue import LifoQueue
 import numpy as np
 
-# from src.trafficSimulator.parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
-from parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+from src.trafficSimulator.parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+# from parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
 
 def det_3(a,b,c):
     """Calculate det of 3x3 matrix"""
