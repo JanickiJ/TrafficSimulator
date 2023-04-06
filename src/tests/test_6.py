@@ -9,7 +9,12 @@ def run_simulation(sim):
     win.run()
 
 def intensityFunction(t):
-    return max(0.0, (200.0 - t) / 20.0)
+    t = t - 400.0 * int(t / 400)
+    return max(0.0, abs(200.0 - t) / 100.0)
+
+def intensityFunction(t):
+    t = t - 400.0 * int((t + 100) / 400)
+    return max(0.0, abs(200.0 - t) / 100.0)
 
 def set_roads_with_right_of_way(sim):
     data =[
@@ -159,7 +164,7 @@ def set_traffic_light(sim):
 
 
 def test1():
-    # full map with path dynamic creation
+    # traffic light and right of way test
     sim = Simulation("TEST_6_1")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[
@@ -196,9 +201,57 @@ def test1():
     sim.set_generator(gen)
     run_simulation(sim)
 
+def test2():
+    # traffic light and right of way test
+    sim = Simulation("TEST_6_2")
+    set_roads_with_right_of_way(sim)
+    gen1 = Generator(carTypes=[
+        (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
+        (1, {"length": 4.6, "break_reaction_time": 0.25, "maximum_speed": 35.0, "a_max": 4.5, "b_max": 7.2}),
+        (4, {"maximum_speed": 25.0}),
+        (2, {"maximum_speed": 20.0}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 50.0}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 12.0, "length": 1.6, "a_max": 2.0, "width": 0.8}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 25.0, "length": 1.75, "a_max": 2.5, "width": 1.2}),
+    ], paths=[
+        (1, (2, (930, 990), True)),
+        (1, (122, (280, 360), True)),
+        (1, (31, (960, 980), True)),
+        (1, (59, (980, 1010), True)),
+        (1, (60, (-100, 1150), True)),
+        (1, (19, (320, 1800), True)),
+        (1, (23, (1060, 1230), True)),
+        (1, (5, (280, 360), True)),
+        (1, (18, (2160, 920), True))
+    ], simulation=sim, intensity_function=intensityFunction)
+    gen2 = Generator(carTypes=[
+        (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
+        (1, {"length": 4.6, "break_reaction_time": 0.25, "maximum_speed": 35.0, "a_max": 4.5, "b_max": 7.2}),
+        (4, {"maximum_speed": 25.0}),
+        (2, {"maximum_speed": 20.0}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 50.0}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 12.0, "length": 1.6, "a_max": 2.0, "width": 0.8}),
+        (1, {"avarage_reaction_time": 0.75, "maximum_speed": 25.0, "length": 1.75, "a_max": 2.5, "width": 1.2}),
+    ], paths=[
+        (1, (43, (960, 980), True)),
+        (1, (27, (790, 1090), True)),
+        (1, (62, (1090, 870), True)),
+        (1, (131, (390, 1720), True)),
+        (1, (31, (960, 980), True)),
+        (1, (134, (1900, 1800), True)),
+        (1, (31, (30, 1170), True)),
+        (1, (21, (1900, 1800), True)),
+        (1, (38, (1600, 840), True)),
+        (1, (38, (980, 1010), True)),
+        (1, (45, (960, 980), True)),
+    ], simulation=sim, intensity_function=intensityFunction)
+    sim.init_distance_vector()
+    sim.set_generators([gen1, gen2])
+    run_simulation(sim)
 
 def runTests():
-    test1()
+    # test1()
+    test2()
 
 
 if __name__ == "__main__":

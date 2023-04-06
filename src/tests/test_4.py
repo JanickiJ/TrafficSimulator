@@ -93,7 +93,7 @@ def test2():
 
 def test3():
     # traffic light and right of way test
-    sim = Simulation("TEST_4_2")
+    sim = Simulation("TEST_4_3")
     set_roads_with_right_of_way_2(sim)
     gen = Generator(carTypes=[
         (2, {"length": 8.0, "break_reaction_time": 0.33, "maximum_speed": 25.0, "a_max": 2.5, "b_max": 5.0}),
@@ -113,7 +113,7 @@ def test3():
 
 
 def runTests():
-    test3()
+    test1()
 
 
 if __name__ == "__main__":
