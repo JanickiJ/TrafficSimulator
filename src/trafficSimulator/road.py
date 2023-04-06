@@ -2,8 +2,8 @@ from scipy.spatial import distance
 from queue import LifoQueue
 import numpy as np
 
-from src.trafficSimulator.parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
-# from parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+# from src.trafficSimulator.parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+from parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
 
 def det_3(a,b,c):
     """Calculate det of 3x3 matrix"""
@@ -23,7 +23,7 @@ def detect_collision(source1, destination1, source2, destination2):
 
 class Road:
     """Class representing one road between two given points"""
-    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True, do_move = False, traffic_queue_size = queue_size):
+    def __init__(self, id, start, end, sim, max_speed=13.83, right_of_way=True, do_move = False, traffic_queue_size = queue_size, lines = 1):
         self.id = id
         self.start = start
         self.end = end
@@ -41,12 +41,14 @@ class Road:
         self.has_signal = False
         self.simulation = sim
         self.vehicle_array = []
+        self.local_vehicle_array = []
         self.expected_time = self.length / self.max_speed
         self.timeQueue = LifoQueue()
         self.right_roads = []
         self.ahead_roads = []
         self.left_roads = []
         self.vertex = []
+        self.lines = lines
         if isinstance(traffic_queue_size, int): self.traffic_queue_size = traffic_queue_size
         elif isinstance(traffic_queue_size, float): self.traffic_queue_size = max(0, int(traffic_queue_size * self.length / 50))
         else: self.traffic_queue_size = queue_size
@@ -78,11 +80,12 @@ class Road:
         # 0 - right
         # 1 - ahead
         # 2 - left
+        if not own_move: return 1
         for road in self.right_roads:
-            if distance.euclidean(road.start, own_move[1]) < 10.0:
+            if distance.euclidean(road.start, own_move[1]) < 1.0:
                 return 0
         for road in self.ahead_roads:
-            if distance.euclidean(road.start, own_move[1]) < 10.0:
+            if distance.euclidean(road.start, own_move[1]) < 1.0:
                 return 1
         return 2
     
@@ -144,39 +147,48 @@ class Road:
             
     def speed_up_vehicles(self, speed):
         """Speed up all vehicles on the road"""
-        for vehicle in self.vehicle_array:
+        for vehicle in self.local_vehicle_array:
             vehicle.speedUp(speed)
 
     def stop_cars(self, break_distance, stop_distance):
         """Stop all vehicles on the road"""
-        if len(self.vehicle_array) > 0:
-            if self.vehicle_array[0].x >= self.length - break_distance:
-                self.vehicle_array[0].slowDown(
-                    self.max_speed * (self.length - stop_distance - self.vehicle_array[0].x) / (
+        if len(self.local_vehicle_array) > 0:
+            if self.local_vehicle_array[0].x >= self.length - break_distance:
+                self.local_vehicle_array[0].slow_down_cond(
+                    self.max_speed * (self.length - stop_distance - self.local_vehicle_array[0].x) / (
                             break_distance - stop_distance))
-            if self.vehicle_array[0].x >= self.length - stop_distance:
-                self.vehicle_array[0].stop()
+            if self.local_vehicle_array[0].x >= self.length - stop_distance:
+                self.local_vehicle_array[0].stop_cond()
+
+    def can_change_line(self, position, line):
+        filter_array = filter(lambda car: car.line == line, list(self.vehicles))
+        for car in filter_array:
+            if abs(car.x - position) < save_distance:
+                return False
+        return True
 
     def move_cars(self, dt=0.01):
         """Move (one iteration) all vehicles on the road"""
         self.vehicle_array = sorted(list(self.vehicles), key=lambda car: car.x, reverse=True)
+        for i in range(self.lines):
+            filter_array = filter(lambda car: car.line == i, list(self.vehicles))
+            self.local_vehicle_array = sorted(list(filter_array), key=lambda car: car.x, reverse=True)
+            if not self.has_signal:
+                # brak pierszeństwa przejazdu i sygnalizacji świetlnej
+                if not self.check_crossroad():
+                    self.stop_cars(break_distance, stop_distance)
+                else :
+                    self.speed_up_vehicles(self.max_speed)
+            else:
+                if self.traffic_signal_state():
+                    self.speed_up_vehicles(self.max_speed)                
+                elif len(self.local_vehicle_array) > 0 and self.has_signal:
+                    self.stop_cars(self.signal.break_distance, self.signal.stop_distance)
 
-        if not self.has_signal:
-            # brak pierszeństwa przejazdu i sygnalizacji świetlnej
-            if not self.check_crossroad():
-                self.stop_cars(break_distance, stop_distance)
-            else :
-                self.speed_up_vehicles(self.max_speed)
-        else:
-            if self.traffic_signal_state():
-                self.speed_up_vehicles(self.max_speed)                
-            elif len(self.vehicle_array) > 0 and self.has_signal:
-                self.stop_cars(self.signal.break_distance, self.signal.stop_distance)
-
-        for i in range(len(self.vehicle_array)):
-            leader = None
-            if i > 0: leader = self.vehicle_array[i - 1]
-            self.vehicle_array[i].move(dt=dt, leader=leader)
+            for i in range(len(self.local_vehicle_array)):
+                leader = None
+                if i > 0: leader = self.local_vehicle_array[i - 1]
+                self.local_vehicle_array[i].move(dt=dt, leader=leader)
 
     def set_traffic_signal(self, signal, index):
         """Set traffic light on the end point of the road"""

@@ -52,6 +52,7 @@ grid_color = (150, 150, 150)
 stop_line_color = (224, 224, 224)
 major_grid_color = (220, 220, 220)
 minor_grid_color = (200, 200, 200)
+car_color = (0, 255, 255)
 
 # unit parameters
 grid_unit = 50
@@ -76,3 +77,9 @@ debug = False
 debug_graph = False
 simulation_debug = False
 debug_car = False
+
+# lane change parameters
+lane_change_coeff = 10
+change_lane_speed_coeff = 0.66
+change_lane_speed_leader_coeff = 0.83
+change_lane_time = 2.0

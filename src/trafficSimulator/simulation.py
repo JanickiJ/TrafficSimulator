@@ -26,7 +26,7 @@ class Simulation:
         self.cars = []
         self.traffic_lights = []
         self.speed = speed
-        self.generator = None
+        self.generators = None
         self.count = 0
         self.distance_vector_initiate = False
         self.start_time = time.time()
@@ -43,12 +43,12 @@ class Simulation:
         for vehicle in vehicles:
             self.create_car(vehicle[0], vehicle[1])
 
-    def create_road(self, start, end, id, speed_limit=default_speed_limit, right_of_way=True, control_point=None, do_move = False):
+    def create_road(self, start, end, id, speed_limit=default_speed_limit, right_of_way=True, control_point=None, do_move = False, lines = 1):
         """Create new road with given parameters"""
         if control_point:
             road = Curve(id, start, end, self, control_point, speed_limit=speed_limit, right_of_way=right_of_way)
         else:
-            road = Road(id, start, end, self, speed_limit, right_of_way, do_move)
+            road = Road(id, start, end, self, speed_limit, right_of_way, do_move, lines = lines)
         self.roads[id] = road
         self.graph.add_edge(start, end, road)
         return road
@@ -60,8 +60,12 @@ class Simulation:
         if do_set_coincident: self.set_coincidence()
 
     def set_generator(self, generator):
-        """Set car generator"""
-        self.generator = generator
+        """Set car generator as a list"""
+        self.generators = [generator]
+
+    def set_generators(self, generators):
+        """Set car generator list"""
+        self.generators = generators
 
     def set_lights(self, traffic_lights):
         """Set lights"""
@@ -76,8 +80,9 @@ class Simulation:
             light.update_yellow(dt)
 
     def update_generator(self, dt):
-        if self.generator:
-            self.generator.generate(time.time() - self.start_time, dt)
+        if self.generators:
+            for generator in self.generators:
+                generator.generate(time.time() - self.start_time, dt)
 
     def upadate_graph(self, _):
         if self.distance_vector_initiate:

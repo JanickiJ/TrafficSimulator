@@ -4,13 +4,20 @@ from time import time
 import numpy as np
 import pygame
 
-from src.trafficSimulator.parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
-# from parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
+from src.trafficSimulator.parameters import max_car_length, max_vehicle_width 
+from src.trafficSimulator.parameters import save_distance, stop_distance, break_distance, road_width
+from src.trafficSimulator.parameters import default_car_parameters, debug_car, inf 
+from src.trafficSimulator.parameters import lane_change_coeff, change_lane_speed_coeff, change_lane_speed_leader_coeff, change_lane_time
+# from parameters import max_car_length, max_vehicle_width 
+# from parameters import save_distance, stop_distance, break_distance, road_width
+# from parameters import default_car_parameters, debug_car, inf 
+# from parameters import lane_change_coeff, change_lane_speed_coeff, change_lane_speed_leader_coeff, change_lane_time
 
 class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
         """Class representing car"""
         self.register_path = []
+        self.line = inf
         self.simulation = simulation
         self.set_vehicle_parameters(parameters)
         self.road_times = [time()]
@@ -47,13 +54,15 @@ class Car:
 
         self.add_to_road()
     
-    def add_to_road(self, debug = debug_car):
+    def add_to_road(self, lanes_number = 1, debug = debug_car):
         """Metohd responsible for registring vehicle as present on a certain road"""
         if self.current_road_index < len(self.path) and self.path[0] != False:
-            current_road = self.path[self.current_road_index]
-            self.simulation.roads[current_road].add_vehicle(self)
-            self.slowDown(self.simulation.roads[current_road].max_speed)
+            road = self.get_current_road()
+            self.line = min(max(0, self.line + road.lines - lanes_number), road.lines - 1)
+            road.add_vehicle(self)
+            self.slowDown(road.max_speed)
             if debug: print(self.register_path)
+            self.last_lane_change_t, self.angle = self.t, 0
         else:
             self.finish()
 
@@ -93,6 +102,9 @@ class Car:
         self.x = parameters["position"]
         self.v = 0
         self.a = 0
+        self.t = 0
+        self.angle = 0
+        self.last_lane_change_t = 0
         self.stopped = False
         self.slowedDown = False
         self.finished = False
@@ -108,6 +120,11 @@ class Car:
         self.register_path.append(next_hop)
         self.path = [self.path[1], next_hop]
 
+    def get_current_road(self):
+        """Support function for getting current road"""
+        r = self.path[self.current_road_index]
+        return self.simulation.roads[r]
+
     def actualize_x(self, current_road):
         """Actualize vehicle position on new road"""
         self.x -= self.simulation.roads[current_road].length
@@ -122,6 +139,7 @@ class Car:
         """Registering road change (time fo trevel, next_hop)"""
         if self.handle_potential_leader():
             return
+        lanes_number = self.get_current_road().lines
         self.actualize_x(current_road)
         self.road_times.append(time())
         self.remove_from_road(current_road)
@@ -130,12 +148,27 @@ class Car:
         else:
             self.current_road_index += 1
         self.count += 1
-        self.add_to_road()
+        self.add_to_road(lanes_number)
+
+    def change_lane_up(self):
+        """Change lane up, turn left"""
+        road = self.get_current_road()
+        if road.lines > self.line + 1 and road.can_change_line(self.x, self.line + 1):
+            self.line += 1
+            self.angle = 1
+            self.last_lane_change_t = self.t
+
+    def change_lane_down(self):
+        """Change lane down, turn right"""
+        road = self.get_current_road()
+        if self.line > 0 and road.can_change_line(self.x, self.line - 1):
+            self.line -= 1
+            self.angle = -1
+            self.last_lane_change_t = self.t
 
     def get_position(self):
         """Get current position of the vehicle on the map (cartesian plain)"""
-        r = self.path[self.current_road_index]
-        road = self.simulation.roads[r]
+        road = self.get_current_road()
         return ((road.end[0] * self.x + road.start[0] * (road.length - self.x)) / road.length,
                 (road.end[1] * self.x + road.start[1] * (road.length - self.x)) / road.length)
 
@@ -145,17 +178,52 @@ class Car:
             next_road_idx = self.path[self.current_road_index + 1]
             next_road = self.simulation.roads[next_road_idx]
             if len(next_road.vehicle_array) > 0:
-                return next_road.vehicle_array[-1]
+                next_line = min(self.line, next_road.lines - 1)
+                next_road_arr = list(filter(lambda car: car.line == next_line, next_road.vehicle_array))
+                if len(next_road_arr) > 0:
+                    return next_road_arr[-1]
         return None
     
     def handle_potential_leader(self):
         """Handle situation when potential leader was detected"""
         potential_leader = self.detect_potential_leader()
         if potential_leader:
-            if potential_leader.x < self.length + save_distance: 
+            if potential_leader.x < potential_leader.length / 2 + 0.75 * self.length: 
                 self.stop()
                 return True
         return False
+    
+    def handle_lane_change(self, road, leader):
+        """Check if we should change lane"""
+        """If it's possible (no collision) change lane"""
+        if self.x > 2 * road.length / 3:
+            if road and road.get_move_type(self.get_planned_move()) == 2:
+                self.change_lane_up()
+            elif road and road.get_move_type(self.get_planned_move()) == 0:
+                self.change_lane_down()
+        elif self.t - self.last_lane_change_t > 2 * change_lane_time:
+            if leader and leader.v < road.max_speed and leader.x - self.x < 2 * break_distance \
+                and np.random.randint(0, lane_change_coeff * road.lines) == self.line:
+                self.change_lane_down()
+            elif (self.v < change_lane_speed_coeff * road.max_speed and \
+                (leader and self.v < change_lane_speed_leader_coeff * leader.v)) and \
+                np.random.randint(0, lane_change_coeff * road.lines) == self.line:
+                self.change_lane_up()
+        
+    
+    def smoooth_road_change(self, road, current_road):
+        """Handle smoooth road change (no jump)"""
+        move_type = road.get_move_type(self.get_planned_move())
+        if move_type != 1:
+            if self.x > road.length - 2 * road_width:
+                self.x = road.length - 2 * road_width
+            if self.x >= road.length - 2 * road_width:
+                self.change_road(current_road)
+        else:
+            if self.x > road.length:
+                self.x = road.length
+            if self.x >= road.length:
+                self.change_road(current_road)
 
     def move(self, dt=1.0, leader=None):
         """Actualize current vehicle position, speed and acceleration"""
@@ -177,7 +245,7 @@ class Car:
         elif potential_leader:
             delta_x = potential_leader.x + self.simulation.roads[
                 self.path[self.current_road_index]].length - self.x - potential_leader.length
-            if delta_x < save_distance + self.length : delta_x = self.simulation.roads[self.path[self.current_road_index]].length - self.x - stop_distance
+            if delta_x < save_distance + self.length : delta_x = self.simulation.roads[self.path[self.current_road_index]].length - self.x - stop_distance / 2
             delta_v = self.v - potential_leader.v
             follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x
@@ -196,12 +264,12 @@ class Car:
                 self.a = -self.a_max
             else:
                 self.a = -self.b_max * self.v / self.v_max
-
+        self.t += dt
         current_road = self.path[self.current_road_index]
-        if self.x > self.simulation.roads[current_road].length - 0.75 * self.length:
-            self.x = self.simulation.roads[current_road].length - 0.75 * self.length
-        if self.x >= self.simulation.roads[current_road].length - 0.75 * self.length:
-            self.change_road(current_road)
+        road = self.get_current_road()
+        self.handle_lane_change(road, leader)
+        self.smoooth_road_change(road, current_road)
+        
 
     def finish(self, debug = debug_car):
         """Signalize travel end for the vehicle"""
