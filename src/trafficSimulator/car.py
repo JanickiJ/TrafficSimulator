@@ -277,16 +277,17 @@ class Car:
         if debug: print(self.register_path)
 
     def stop(self):
-        """Stop the car"""
-        if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
-            self.stopped = True
+        """Stop car"""
+        # if self.x < self.simulation.roads[self.path[self.current_road_index]].length - 2.0 * save_distance / 3.0 :
+        self.stopped = True
 
     def stop_cond(self):
-        # dorzucić warunki
-        self.stop()
+        """Stop car if it will not cause blocking another road"""
+        road = self.get_current_road()
+        if self.x + self.length / 2 < road.length - road_width: self.stop()
 
     def start(self):
-        """Start the car"""
+        """Start car"""
         self.stopped = False
 
     def slowDown(self, v):
@@ -295,8 +296,9 @@ class Car:
         self.v_max = max(0.0, v)
 
     def slow_down_cond(self, v):
-        # dorzucić warunki
-        self.slowDown(v)
+        """Slow down car if it will not cause blocking another road"""
+        road = self.get_current_road()
+        if self.x + self.length < road.length - 2 * road_width: self.slowDown(v)
 
     def speedUp(self, v):
         """Speeding up to given speed"""
