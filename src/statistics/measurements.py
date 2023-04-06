@@ -23,7 +23,7 @@ class Measurements:
             self.times.append(time)
             self.cars_number.append(len(cars))
             self.stopped_cars.append(len(list(filter(lambda car: car.v == 0, cars))))
-            self.average_speed.append(mean(list(map(lambda car: car.v, cars))))
+            self.average_speed.append(max(mean(list(map(lambda car: car.v, cars))),0.6))
             if len(cars) > 2:
                 self.stdev_speed.append(stdev(list(map(lambda car: car.v, cars))))
             else:
@@ -41,7 +41,7 @@ class Measurements:
         df = pd.DataFrame(data, index=self.times)
         file_name = simulation_name + "-" + time.strftime("%Y_%m_%d-%H_%M_%S")
         print(file_name + ".csv")
-        self.plot_stopped_cars(df, simulation_name, file_name)
+        self.plot_results(df, simulation_name, file_name)
         df.to_csv('./records/' + file_name)
         print(df.head(10))
         print(df.size)
@@ -66,7 +66,7 @@ class Measurements:
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
         ax1.set_title(simulation_name, loc="right")
-        ax1.plot(data.index, data['stopped_cars'])
+        ax1.scatter(data.index, data['stopped_cars'])
         ax2.plot(data.index, data['cars_number'], 'g')
         fig.legend(['Stopped cars', 'Cars number'], loc='upper left')
         ax1.set_xlabel('Time')
