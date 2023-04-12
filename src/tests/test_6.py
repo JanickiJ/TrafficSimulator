@@ -9,9 +9,6 @@ def run_simulation(sim):
     win.run()
 
 def intensityFunction(t):
-<<<<<<< Updated upstream
-    return max(0.0, (200.0 - t) / 20.0)
-=======
     """Morning intensity road"""
     t = t - 400.0 * int(t / 400)
     return max(0.0, abs(200.0 - t) / 100.0)
@@ -20,7 +17,6 @@ def intensityFunction(t):
     """Afternoon intensity road"""
     t = t - 400.0 * int((t + 100) / 400)
     return max(0.0, abs(200.0 - t) / 100.0)
->>>>>>> Stashed changes
 
 def set_roads_with_right_of_way(sim):
     """Cracow road map with extra roads"""
@@ -170,11 +166,7 @@ def set_traffic_light(sim):
 
 
 def test1():
-<<<<<<< Updated upstream
-    # full map with path dynamic creation
-=======
     """Traffic light and right of way test in Crocow roadmap - one generator"""
->>>>>>> Stashed changes
     sim = Simulation("TEST_6_1")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[
@@ -211,8 +203,6 @@ def test1():
     sim.set_generator(gen)
     run_simulation(sim)
 
-<<<<<<< Updated upstream
-=======
 def test2():
     """Traffic light and right of way test in Crocow roadmap - two generator"""
     sim = Simulation("TEST_6_2")
@@ -260,10 +250,10 @@ def test2():
     sim.init_distance_vector()
     sim.set_generators([gen1, gen2])
     run_simulation(sim)
->>>>>>> Stashed changes
 
 def runTests():
-    test1()
+    # test1()
+    test2()
 
 
 if __name__ == "__main__":

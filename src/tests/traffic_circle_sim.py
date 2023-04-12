@@ -33,11 +33,6 @@ def set_roads(sim):
     sim.set_roads(list(map(road_with_speed_limit_mapper, roads))
                   + list(map(curve_with_speed_limit_mapper, curves)),
                   True)
-<<<<<<< Updated upstream
-
-
-def test():
-=======
     
 def set_roads_2(sim):
     data = [
@@ -72,7 +67,6 @@ def set_roads_2(sim):
 
 
 def test1():
->>>>>>> Stashed changes
     sim = Simulation("TRAFFIC_CIRCLE_SIM", speed=2)
     set_roads(sim)
     gen = Generator(carTypes=[
@@ -110,8 +104,6 @@ def test1():
     run_simulation(sim)
 
 
-<<<<<<< Updated upstream
-=======
 def test2():
     sim = Simulation("TRAFFIC_CIRCLE_SIM", speed=2)
     set_roads_2(sim)
@@ -150,7 +142,6 @@ def test2():
     run_simulation(sim)
 
 
->>>>>>> Stashed changes
 def intensityFunction(t):
     return max(0.0, (100.0 - t) / 5.0)
 
@@ -162,17 +153,9 @@ def run_simulation(sim):
 
 
 def runTests():
-<<<<<<< Updated upstream
-    test()
-
-
-if __name__ == "__main__":
-    runTests()
-=======
     # test1()
     test2()
 
 
 if __name__ == "__main__":
     runTests()
->>>>>>> Stashed changes

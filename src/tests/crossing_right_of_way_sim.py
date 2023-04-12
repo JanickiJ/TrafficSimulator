@@ -34,10 +34,6 @@ def set_roads(sim):
 
     sim.set_roads(list(map(road_with_speed_limit_mapper, data)), True)
 
-<<<<<<< Updated upstream
-
-def test():
-=======
 def set_roads_2(sim):
     data = [
         ((1440, 100), (160, 100), 1, 20.00, True, True),
@@ -58,7 +54,6 @@ def set_roads_2(sim):
 
 
 def test1():
->>>>>>> Stashed changes
     sim = Simulation("CROSSING_RIGHT_OF_WAY_SIM", speed=2)
     set_roads(sim)
     gen = Generator(carTypes=[
@@ -87,15 +82,6 @@ def test1():
     sim.set_generator(gen)
     run_simulation(sim)
 
-<<<<<<< Updated upstream
-
-def runTests():
-    test()
-
-
-if __name__ == "__main__":
-    runTests()
-=======
 def test2():
     sim = Simulation("CROSSING_RIGHT_OF_WAY_SIM", speed=2)
     set_roads_2(sim)
@@ -133,4 +119,3 @@ def runTests():
 
 if __name__ == "__main__":
     runTests()
->>>>>>> Stashed changes

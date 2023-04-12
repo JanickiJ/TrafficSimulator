@@ -6,31 +6,13 @@ from src.trafficSimulator.parameters import road_width
 from src.trafficSimulator.parameters import bg_color, fps, height, width, zoom
 from src.trafficSimulator.parameters import rect_color, arrow_color, axes_color, grid_color, stop_line_color, major_grid_color, minor_grid_color
 from src.trafficSimulator.parameters import grid_unit, major_grid_unit, minor_grid_unit
-<<<<<<< Updated upstream
-from src.trafficSimulator.parameters import traffic_color_coefficient, traffic_color_coefficient_2, red_basic, green_basic
-from src.trafficSimulator.parameters import stop_line_size, stop_line_distance
-=======
 from src.trafficSimulator.parameters import traffic_color_coefficient, traffic_color_coefficient_2, red_basic, green_basic, car_color
 from src.trafficSimulator.parameters import stop_line_size
 from src.trafficSimulator.parameters import change_lane_time
->>>>>>> Stashed changes
 from src.trafficSimulator.car import Car
 from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.road import Road
 
-<<<<<<< Updated upstream
-# from parameters import road_width
-# from parameters import bg_color, fps, height, width, zoom
-# from parameters import rect_color, arrow_color, axes_color, grid_color, stop_line_color, major_grid_color, minor_grid_color
-# from parameters import grid_unit, major_grid_unit, minor_grid_unit
-# from parameters import traffic_color_coefficient, traffic_color_coefficient_2, red_basic, green_basic
-# from parameters import stop_line_size, stop_line_distance
-# from car import Car
-# from curve import Curve
-# from road import Road
-
-=======
->>>>>>> Stashed changes
 class Window:
     def __init__(self, sim, config={}):
         self.sim = sim
@@ -268,15 +250,23 @@ class Window:
             self.draw_road(road)
 
     def draw_road(self, road: Road):
-        def_time = road.length  / road.max_speed
-        traffic = traffic_color_coefficient * (road.expected_time - def_time) / def_time
+        """Drawing one road with all its lines"""
+        for i in range(road.lines):
+            dx, dy = road_width * road.angle_sin, -road_width * road.angle_cos
+            start = (road.start[0] - i * dx, road.start[1] - i * dy)
+            self.draw_lane(road.length, road.max_speed, road.expected_time, start, road.angle_cos, road.angle_sin)
+
+    def draw_lane(self, length, max_speed, expected_time, start, angle_cos, angle_sin):
+        """Drawing one road lane"""
+        def_time = length  / max_speed
+        traffic = traffic_color_coefficient * (expected_time - def_time) / def_time
         r, g = min(255, red_basic + traffic_color_coefficient_2 * traffic), max(0, green_basic - traffic_color_coefficient_2 * np.abs(traffic - 1.0))
         b = g
         self.rotated_box(
-            road.start,
-            (road.length, road_width),
-            cos=road.angle_cos,
-            sin=road.angle_sin,
+            start,
+            (length, road_width),
+            cos=angle_cos,
+            sin=angle_sin,
             color=(r, g, b),
             centered=False
         )
@@ -289,38 +279,23 @@ class Window:
         #     color=(0, 0, 0),
         #     centered=False
         # )
-        if road.length > 5:
-            for i in np.arange(-0.5 * road.length, 0.5 * road.length, 10):
+        if length > 5:
+            for i in np.arange(-0.5 * length, 0.5 * length, 10):
                 pos = (
-                    road.start[0] + (road.length / 2 + i + 3) * road.angle_cos,
-                    road.start[1] + (road.length / 2 + i + 3) * road.angle_sin
+                    start[0] + (length / 2 + i + 3) * angle_cos,
+                    start[1] + (length / 2 + i + 3) * angle_sin
                 )
 
                 self.arrow(
                     pos,
                     (-1.25, 0.2),
-                    cos=road.angle_cos,
-                    sin=road.angle_sin
+                    cos=angle_cos,
+                    sin=angle_sin
                 )
     
     def draw_stop_lines(self) :
         for road in self.sim.roads.values():
             if not road.has_right_of_way:
-<<<<<<< Updated upstream
-                a = stop_line_distance / road.length
-                position = (
-                    (1.0 - a) * road.end[0] + a * road.start[0],
-                    (1.0 - a) * road.end[1] + a * road.start[1]
-                )
-                self.rotated_box(
-                    position,
-                    stop_line_size,
-                    cos=road.angle_cos,
-                    sin=road.angle_sin,
-                    color=stop_line_color,
-                    centered=True
-                )
-=======
                 for j in range(road.lines):                        
                     a = (3 * road_width + 1.0) / road.length
                     dx, dy = road_width * road.angle_sin, -road_width * road.angle_cos
@@ -338,24 +313,29 @@ class Window:
                         color=stop_line_color,
                         centered=True
                     )
->>>>>>> Stashed changes
 
     def draw_vehicle(self, vehicle: Car, road: Road):
         l, h = vehicle.length, vehicle.width
         vehicle_x = vehicle.x
         road_substitute = road
+        dt = vehicle.t - vehicle.last_lane_change_t
         if isinstance(road, Curve):
             road_substitute = road.get_vehicle_current_road_substitute(vehicle.x)
             vehicle_x -= road.get_road_substitute_start_length(road_substitute)
+            dx, dy = 0, 0 #TODO
+        else:
+            dx, dy = (vehicle.line - vehicle.angle * max(0, change_lane_time - dt) / change_lane_time) * road_width * road.angle_sin, -(vehicle.line - vehicle.angle * max(0, change_lane_time - dt) / change_lane_time) * road_width * road.angle_cos
 
+        t = max(0, change_lane_time / 2 - abs(change_lane_time / 2 - min(change_lane_time, dt))) / change_lane_time
+        turn_angle = vehicle.angle * t * 0.2
         sin, cos = road_substitute.angle_sin, road_substitute.angle_cos
 
-        x = road_substitute.start[0] + cos * (vehicle_x - 1.0)
-        y = road_substitute.start[1] + sin * (vehicle_x - 1.0)
+        x = road_substitute.start[0] + cos * (vehicle_x - 1.0) - dx
+        y = road_substitute.start[1] + sin * (vehicle_x - 1.0) - dy
 
-        color = (0, 255, 255)
+        color = car_color
 
-        self.rotated_box((x, y), (l, h), cos=cos, sin=sin, color=color, centered=True)
+        self.rotated_box((x, y), (l, h), cos=cos - np.sign(sin) * turn_angle, sin=sin + np.sign(cos) * turn_angle, color=color, centered=True)
 
     def draw_vehicles(self):
         for road in self.sim.roads.values():
@@ -367,22 +347,6 @@ class Window:
             for i in range(len(signal.roads)):
                 for r in signal.roads[i]:
                     road = self.sim.roads[r]
-<<<<<<< Updated upstream
-                    a = signal.stop_distance / (2.0 * road.length)
-                    position = (
-                        (1.0 - a) * road.end[0] + a * road.start[0],
-                        (1.0 - a) * road.end[1] + a * road.start[1]
-                    )
-                    if signal.get_current_state_yellow(i):
-                        color = (0, 255, 0)
-                        self.rotated_box(position, (1, 3), cos=road.angle_cos, sin=road.angle_sin, color=color)
-                    elif signal.get_current_state_yellow(i)==None:
-                        color = (255, 255, 0)
-                        self.rotated_box(position, (1, 3), cos=road.angle_cos, sin=road.angle_sin, color=color)
-                    else:
-                        color = (255, 0, 0)
-                        self.rotated_box(position, (1, 3), cos=road.angle_cos, sin=road.angle_sin, color=color)
-=======
                     for j in range(road.lines):                        
                         a = (3 * road_width + 1.0) / road.length
                         dx, dy = road_width * road.angle_sin, -road_width * road.angle_cos
@@ -401,7 +365,6 @@ class Window:
                         else:
                             color = (255, 0, 0)
                             self.rotated_box(position, (1, 3), cos=road.angle_cos, sin=road.angle_sin, color=color)
->>>>>>> Stashed changes
 
     def draw_status(self):
         text_fps = self.text_font.render(f't={self.sim.t:.5}', False, (0, 0, 0))

@@ -1,11 +1,6 @@
 from src.trafficSimulator.parameters import default_traffic_light_T, default_traffic_time_steps
 from src.trafficSimulator.parameters import default_traffic_state, default_traffic_state_yellow
 from src.trafficSimulator.parameters import stop_distance
-<<<<<<< Updated upstream
-# from parameters import default_traffic_light_T, default_traffic_time_steps
-# from parameters import default_traffic_state, default_traffic_state_yellow
-=======
->>>>>>> Stashed changes
 
 class TrafficSignal:
     def __init__(self, roads, sim, light_T = default_traffic_light_T, time_steps = default_traffic_time_steps, yellow_traffic_state = default_traffic_state_yellow) :

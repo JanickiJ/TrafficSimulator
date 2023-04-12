@@ -23,46 +23,30 @@ class Measurements:
             self.times.append(time)
             self.cars_number.append(len(cars))
             self.stopped_cars.append(len(list(filter(lambda car: car.v == 0, cars))))
-<<<<<<< Updated upstream
-            self.average_speed.append(max(mean(list(map(lambda car: car.v, cars))),0.6))
-            if len(cars) > 2:
-                self.stdev_speed.append(stdev(list(map(lambda car: car.v, cars))))
-=======
             self.average_speed.append(mean(list(map(lambda car: car.v, cars))))
             if len(cars) > 2:
                 try:
                     self.stdev_speed.append(stdev(list(map(lambda car: car.v, cars))))
                 except:
                     self.stdev_speed.append(0)
->>>>>>> Stashed changes
             else:
                 self.stdev_speed.append(0)
         self.precision += 1
 
     def save_measurements(self, simulation_name):
         print("=== RESULTS ===")
-<<<<<<< Updated upstream
-        data = {'cars_number': self.cars_number,
-                'stopped_cars': self.stopped_cars,
-                'average_speed': self.average_speed,
-                'stdev_speed': self.stdev_speed
-=======
         length = min(len(self.cars_number), len(self.cars_number), len(self.cars_number), len(self.cars_number))
         data = {'cars_number': self.cars_number[:length],
                 'stopped_cars': self.stopped_cars[:length],
                 'average_speed': self.average_speed[:length],
                 'stdev_speed': self.stdev_speed[:length]
->>>>>>> Stashed changes
                 }
 
         df = pd.DataFrame(data, index=self.times)
         file_name = simulation_name + "-" + time.strftime("%Y_%m_%d-%H_%M_%S")
         print(file_name + ".csv")
         self.plot_results(df, simulation_name, file_name)
-<<<<<<< Updated upstream
-=======
         self.plot_stopped_cars(df, simulation_name, file_name)
->>>>>>> Stashed changes
         df.to_csv('./records/' + file_name)
         print(df.head(10))
         print(df.size)
@@ -80,30 +64,18 @@ class Measurements:
         ax1.set_ylabel('Average speed', color='b')
         ax2.set_ylabel('Cars number', color='g')
         plt.show()
-<<<<<<< Updated upstream
-
-    # plt.savefig('./images/' + name + ".png")
-=======
         plt.savefig('./images/' + name + ".png")
->>>>>>> Stashed changes
 
     def plot_stopped_cars(self, data, simulation_name, name):
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
         ax1.set_title(simulation_name, loc="right")
-<<<<<<< Updated upstream
-        ax1.scatter(data.index, data['stopped_cars'])
-=======
         ax1.scatter(data.index, data['stopped_cars'], s=1)
->>>>>>> Stashed changes
         ax2.plot(data.index, data['cars_number'], 'g')
         fig.legend(['Stopped cars', 'Cars number'], loc='upper left')
         ax1.set_xlabel('Time')
         ax1.set_ylabel('Stopped cars', color='b')
         ax2.set_ylabel('Cars number', color='g')
         plt.show()
-<<<<<<< Updated upstream
-    # plt.savefig('./images/' + name + ".png")
-=======
         plt.savefig('./images/' + name + ".png")
->>>>>>> Stashed changes
+

@@ -147,6 +147,6 @@ class Graph:
 
     def update(self):
         """Update distance vectors"""
-        self.floyd_warshall()
-        # for vertex in self.vertex_map.values():
-        #     vertex.update()
+        # self.floyd_warshall()
+        for vertex in self.vertex_map.values():
+            vertex.update()
