@@ -12,6 +12,7 @@ def intensityFunction(t):
     return max(0.0, (200.0 - t) / 20.0)
 
 def set_roads_with_right_of_way(sim):
+    """Cracow road net map"""
     data =[
         ((0, 300), (280, 360), 1, 25.00, False, True),
         ((280, 360), (0, 300), 2, 25.00, True, True),
@@ -155,11 +156,12 @@ def set_roads_with_right_of_way(sim):
 
 
 def set_traffic_light(sim):
+    """Traffic light set function"""
     return [TrafficSignal([(1, 2), (6, 14)], sim)]      
 
 
 def test1():
-    # traffic light and right of way test
+    """Cracow map - simplified version"""
     sim = Simulation("TEST_3_1")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[

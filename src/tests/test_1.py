@@ -10,7 +10,8 @@ def run_simulation(sim):
     win.run()
 
 
-def set_simple_roads(sim):
+def set_simple_roads(sim):    
+    """Basic road net"""
     data = [
         ((300, 98), (0, 98), 1),
         ((0, 102), (300, 102), 2),
@@ -27,7 +28,8 @@ def set_simple_roads(sim):
     sim.set_roads(list(map(simple_road_mapper, data)))
 
 
-def set_roads_with_speed_limits(sim):
+def set_roads_with_speed_limits(sim):    
+    """Set road net with speed limits enforced"""
     data = [
         ((300, 98), (0, 98), 1, 40.00),
         ((0, 102), (300, 102), 2, 40.00),
@@ -45,6 +47,7 @@ def set_roads_with_speed_limits(sim):
 
 
 def set_roads_with_traffic_light(sim):
+    """Set road net for crossroad with traffic lights"""
     data = [
         ((300, 98), (160, 98), 1, 20.00),  # przeciąć 1
         ((0, 102), (160, 102), 2, 20.00),  # przeciąć 1
@@ -65,6 +68,7 @@ def set_roads_with_traffic_light(sim):
 
 
 def set_roads_with_right_of_way(sim):
+    """Set road net with all road having right of way"""
     data =[
         ((300, 98), (160, 98), 1, 20.00, True),  # przeciąć 1
         ((0, 102), (160, 102), 2, 20.00, True),  # przeciąć 1
@@ -86,6 +90,7 @@ def set_roads_with_right_of_way(sim):
     sim.set_lights(set_traffic_light(sim))
 
 def set_roads_with_right_of_way_modified(sim):
+    """Set road net with road with no right of way"""
     data =[
         ((300, 100), (160, 100), 1, 20.00, True),  # przeciąć 1
         ((0, 100), (160, 100), 2, 20.00, True),  # przeciąć 1
@@ -107,6 +112,7 @@ def set_roads_with_right_of_way_modified(sim):
     sim.set_lights(set_traffic_light(sim))
 
 def set_simple_crossroad(sim):
+    """Set road net with from simple crossroad"""
     data =[
         ((0, 200), (200, 200), 1, 15.00, False, True),
         ((150, 0), (200, 200), 2, 15.00, True, True),
@@ -122,10 +128,12 @@ def set_simple_crossroad(sim):
 
 
 def set_traffic_light(sim):
+    """Example traffic lights configuration"""
     return [TrafficSignal([(1, 2), (6, 12)], sim)]
 
 
 def test1():
+    """Map with no cars"""
     sim = Simulation("TEST_1_1")
     set_simple_roads(sim)
     sim.set_vehicles([
@@ -141,7 +149,7 @@ def test1():
 
 
 def test2():
-    # all cars created in one moment (befor starting simulation)
+    """all cars created in one moment (befor starting simulation)"""
     sim = Simulation("TEST_1_2")
     set_simple_roads(sim)
     gen = Generator(carTypes=[
@@ -170,7 +178,7 @@ def intensityFunction(t):
 
 
 def test3():
-    # car are being created during simulation
+    """car are being created during simulation"""
     sim = Simulation("TEST_1_3")
     set_simple_roads(sim)
     gen = Generator(carTypes=[
@@ -199,7 +207,7 @@ def intensityFunction2(t):
 
 
 def test4():
-    # more cars are being created during simulation 
+    """more cars are being created during simulation"""
     sim = Simulation("TEST_1_4")
     set_simple_roads(sim)
     gen = Generator(carTypes=[
@@ -224,7 +232,7 @@ def test4():
 
 
 def test5():
-    # speed limit test 
+    """Speed limit test"""
     sim = Simulation("TEST_1_5")
     set_roads_with_speed_limits(sim)
     gen = Generator(carTypes=[
@@ -249,7 +257,7 @@ def test5():
 
 
 def test6():
-    # traffic light test
+    """Traffic light test"""
     sim = Simulation("TEST_1_6")
     set_roads_with_traffic_light(sim)
     gen = Generator(carTypes=[
@@ -274,7 +282,7 @@ def test6():
 
 
 def test7():
-    # traffic light and right of way test
+    """Traffic light and right of way test"""
     sim = Simulation("TEST_1_7")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[
@@ -299,7 +307,7 @@ def test7():
 
 
 def test8():
-    # traffic light and right of way test
+    """Traffic light and right of way test"""
     sim = Simulation("TEST_1_8")
     set_roads_with_right_of_way(sim)
     gen = Generator(carTypes=[
@@ -325,7 +333,7 @@ def test8():
 
 
 def test9():
-    # traffic light and right of way test
+    """Traffic light and right of way test"""
     sim = Simulation("TEST_1_9")
     set_roads_with_right_of_way_modified(sim)
     gen = Generator(carTypes=[
@@ -352,7 +360,7 @@ def test9():
     run_simulation(sim)
 
 def test10() :
-    # Crossroad deadlock avoidance test
+    """Crossroad deadlock avoidance test"""
     sim = Simulation("TEST_1_10")
     set_simple_crossroad(sim)
     gen = Generator(carTypes=[
@@ -375,11 +383,7 @@ def test10() :
         (1, [4, 7]),
     ], simulation=sim, intensity_function=intensityFunction2)
     sim.set_generator(gen)
-    # gen.generateCars(10)
-    run_simulation(sim)
-
-
-     
+    run_simulation(sim)   
 
 
 def runTests():
