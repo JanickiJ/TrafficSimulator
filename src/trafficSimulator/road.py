@@ -4,9 +4,12 @@ import numpy as np
 from scipy.spatial import distance
 
 from src.trafficSimulator.parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+<<<<<<< Updated upstream
 
 
 # from parameters import max_car_length, save_distance, break_distance, stop_distance, queue_size
+=======
+>>>>>>> Stashed changes
 
 def det_3(a, b, c):
     """Calculate det of 3x3 matrix"""
@@ -95,18 +98,31 @@ class Road:
             if distance.euclidean(road.start, own_move[1]) < 10.0:
                 return 1
         return 2
+<<<<<<< Updated upstream
 
     def avoid_collision(self, own_move, road):
         """Inform cars about potential collision and enforce proper reaction"""
         other_move = road.get_car_move()
         if self.id < road.id:
+=======
+    
+    def avoid_collision(self, own_move, road, flag = True):
+        """Inform cars about potential collision and enforce proper reaction"""
+        other_move = road.get_car_move()
+        if not flag or self.id < road.id:
+>>>>>>> Stashed changes
             if other_move:
                 if detect_collision(own_move[0], own_move[1], other_move[0], other_move[1]):
                     for car in road.vehicle_array:
                         if car.current_road_index < len(car.path) \
+<<<<<<< Updated upstream
                                 and distance.euclidean(car.get_position(),
                                                        self.end) - car.v / 1.8 - max_car_length < 2 * save_distance:
                             return True
+=======
+                            and distance.euclidean(car.get_position(), self.end) - car.v / 1.8 - max_car_length < 2 * save_distance:
+                                return True
+>>>>>>> Stashed changes
                         break
         return False
 
@@ -121,7 +137,7 @@ class Road:
         """Check if there is a car with right of way ahead"""
         for road in self.ahead_roads:
             if road.has_right_of_way or (not self.has_right_of_way and do_check_with):
-                if self.avoid_collision(own_move, road): return False
+                if self.avoid_collision(own_move, road, True): return False
         return True
 
     def check_left(self, own_move, do_check_with=False):

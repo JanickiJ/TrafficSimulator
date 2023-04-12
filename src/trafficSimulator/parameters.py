@@ -28,10 +28,11 @@ inf = 1000000000
 queue_size = 5
 
 # traffic light parameters
-default_traffic_light_T = 40.0
+default_traffic_light_T = 72.0
 default_traffic_state = [(False, True), (True, False)]
 default_traffic_state_yellow = [(True, None, False, False, False, None), (False, False, None, True, None, False)]
-default_traffic_time_steps = [16.0, 18.0, 20.0, 36.0, 38.0, 40.0]
+# default_traffic_time_steps = [32.0, 36.0, 40.0, 72.0, 76.0, 80.0]
+default_traffic_time_steps = [32.0, 34.0, 36.0, 68.0, 70.0, 72.0]
 
 # road parameters
 road_width = 4.0

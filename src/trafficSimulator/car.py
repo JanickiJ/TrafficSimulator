@@ -2,11 +2,18 @@ from time import time
 
 import numpy as np
 
+<<<<<<< Updated upstream
 from src.trafficSimulator.parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, \
     default_car_parameters, debug_car
 
 
 # from parameters import max_car_length, max_vehicle_width, save_distance, stop_distance, default_car_parameters, debug_car
+=======
+from src.trafficSimulator.parameters import max_car_length, max_vehicle_width 
+from src.trafficSimulator.parameters import save_distance, stop_distance, break_distance, road_width
+from src.trafficSimulator.parameters import default_car_parameters, debug_car, inf 
+from src.trafficSimulator.parameters import lane_change_coeff, change_lane_speed_coeff, change_lane_speed_leader_coeff, change_lane_time
+>>>>>>> Stashed changes
 
 class Car:
     def __init__(self, parameters=None, conf={}, simulation=None):
@@ -171,7 +178,7 @@ class Car:
         potential_leader = self.detect_potential_leader()
         # jeśeli pojazd podąża za kimś
         if leader:
-            delta_x = leader.x - self.x - leader.length
+            delta_x = max(1.0, leader.x - self.x - leader.length)
             delta_v = self.v - leader.v
             follow_correction = (self.s0 + max(0, self.T * self.v + delta_v * self.v / (
                     2 * np.sqrt(self.a_max * self.b_max)))) / delta_x

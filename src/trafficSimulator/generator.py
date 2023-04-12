@@ -1,9 +1,12 @@
 import numpy as np
 
 from src.trafficSimulator.parameters import max_car_length
+<<<<<<< Updated upstream
 
 
 # from parameters import max_car_length
+=======
+>>>>>>> Stashed changes
 
 def id(a):
     return a
@@ -102,3 +105,8 @@ class Generator:
             if i > 0 and not generated:
                 generated = self.generate_cars(1)
                 i -= 1
+<<<<<<< Updated upstream
+=======
+
+        
+>>>>>>> Stashed changes

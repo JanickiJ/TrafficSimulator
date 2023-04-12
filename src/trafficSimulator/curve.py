@@ -2,8 +2,6 @@ import math
 
 from src.trafficSimulator.parameters import curve_number
 from src.trafficSimulator.road import Road
-# from road import Road
-# from parameters import curve_number
 
 class Curve(Road):
     def __init__(self, id, start, end, sim, control_point, speed_limit=None, right_of_way=None):

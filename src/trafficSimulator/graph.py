@@ -1,5 +1,4 @@
 from src.trafficSimulator.parameters import inf, debug_graph
-# from parameters import inf, debug_graph
 
 class Vertex :
     def __init__(self, position): 
@@ -35,6 +34,7 @@ class Vertex :
     
     def get_distance(self, v):
         """Get distance to point"""
+        if Vertex((v.x, v.y)) in self.out_road_map.keys(): return self.out_road_map[Vertex((v.x, v.y))].expected_time
         return self.distance_map[(v.x, v.y)]
     
     def get_predecesor(self, v):
@@ -147,5 +147,6 @@ class Graph:
 
     def update(self):
         """Update distance vectors"""
-        for vertex in self.vertex_map.values():
-            vertex.update()
+        self.floyd_warshall()
+        # for vertex in self.vertex_map.values():
+        #     vertex.update()

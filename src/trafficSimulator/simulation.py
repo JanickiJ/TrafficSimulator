@@ -10,7 +10,10 @@ from src.trafficSimulator.curve import Curve
 from src.trafficSimulator.graph import Graph
 from src.trafficSimulator.parameters import default_speed_limit, simulation_debug
 from src.trafficSimulator.road import Road
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 class Simulation:
     def __init__(self, map_name, speed=2):
@@ -40,12 +43,20 @@ class Simulation:
             self.create_car(vehicle[0], vehicle[1])
 
     def create_road(self, start, end, id, speed_limit=default_speed_limit, right_of_way=True, control_point=None,
+<<<<<<< Updated upstream
                     do_move=False):
+=======
+                    do_move=False, lines=1):
+>>>>>>> Stashed changes
         """Create new road with given parameters"""
         if control_point:
             road = Curve(id, start, end, self, control_point, speed_limit=speed_limit, right_of_way=right_of_way)
         else:
+<<<<<<< Updated upstream
             road = Road(id, start, end, self, speed_limit, right_of_way, do_move)
+=======
+            road = Road(id, start, end, self, speed_limit, right_of_way, do_move, lines=lines)
+>>>>>>> Stashed changes
         self.roads[id] = road
         self.graph.add_edge(start, end, road)
         return road
@@ -53,11 +64,19 @@ class Simulation:
     def set_roads(self, road_list, do_set_coincident=False):
         """Create new road for an array of parameter maps"""
         for road in road_list:
+            print(road)
             self.create_road(**road)
         if do_set_coincident: self.set_coincidence()
 
     def get_cars(self):
         return list(map(lambda road: road.vehicle_array))
+<<<<<<< Updated upstream
+=======
+
+    def set_generator(self, generator):
+        """Set car generator"""
+        self.generators = [generator]
+>>>>>>> Stashed changes
 
     def set_generator(self, generator):
         """Set car generator"""
