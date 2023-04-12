@@ -2,6 +2,9 @@
 
 Simple traffic simulator developed as a part of _Modelowanie i symulacja systemów_ subject at AGH UST.
 
+## Docs
+Project is fully documented - [documentation](docs/symulacje_zelasko_janicki.pdf).
+
 ## Technologies
 
 Project is created with:
