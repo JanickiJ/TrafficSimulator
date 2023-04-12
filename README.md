@@ -22,8 +22,13 @@ through the function.
 
 ## Visuals
 
-![](docs/visuals.gif)
+#### Cracow traffic infrastructure simulation
+![](docs/ts2.gif)
+#### Crossing with traffic lights simulation
+![](docs/ts3.gif)
+#### Traffic circle simulation
+![](docs/ts4.gif)
 
-### TwórDeveloperscy :keyboard:
+### Developers
  [Michał Żelasko](https://github.com/MichalZelasko)        
  [Jakub Janicki](https://github.com/JanickiJ)  
